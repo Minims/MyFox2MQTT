@@ -1,0 +1,7 @@
+version: "3"
+services:
+  myfox2mqtt:
+    build: .
+    image: myfox2mqtt:v0.2.9
+    volumes:
+      - ./config:/config

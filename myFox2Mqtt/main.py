@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""MyFox 2 MQTT"""
+import argparse
+import logging
+import threading
+from functools import partial
+from signal import SIGINT, SIGTERM, signal
+
+from exceptions import MyFoxInitError
+from myfox_2_mqtt import MyFox2Mqtt
+from utils import close_and_exit, setup_logger, read_config_file
+from mqtt import init_mqtt
+from myfox.sso import init_sso
+from myfox.api import MyFoxApi
+from myfox.websocket import MyFoxWebsocket
+
+VERSION = "0.0.0a"
+
+
+def myfox_loop(myfox_2_mqtt):
+    """MyFox 2 MQTT Loop"""
+    try:
+        myfox_2_mqtt.loop()
+    except Exception as exp:
+        LOGGER.error(f"Force stopping Api {exp}")
+        close_and_exit(myfox_2_mqtt, 3)
+
+
+def myfox_wss_loop(myfox_websocket):
+    """MyFox WSS Loop"""
+    try:
+        myfox_websocket.run_forever()
+    except Exception as exp:
+        LOGGER.error(f"Force stopping WebSocket {exp}")
+        close_and_exit(myfox_websocket, 3)
+
+
+if __name__ == "__main__":
+
+    # Read Arguments
+    PARSER = argparse.ArgumentParser()
+    PARSER.add_argument(
+        "--verbose", "-v", action="store_true", help="verbose mode"
+    )
+    PARSER.add_argument(
+        "--configuration", "-c", type=str, help="config file path"
+    )
+    ARGS = PARSER.parse_args()
+    DEBUG = ARGS.verbose
+    CONFIG_FILE = ARGS.configuration
+
+    # Setup Logger
+    setup_logger(debug=DEBUG, filename="myFox2Mqtt.log")
+    LOGGER = logging.getLogger(__name__)
+    LOGGER.info(f"Starting MyFox2Mqtt {VERSION}")
+
+    CONFIG = read_config_file(CONFIG_FILE)
+
+    SSO = init_sso(config=CONFIG)
+    API = MyFoxApi(sso=SSO)
+    MQTT_CLIENT = init_mqtt(config=CONFIG, api=API)
+    WSS = MyFoxWebsocket(
+        sso=SSO, debug=DEBUG, config=CONFIG, mqtt_client=MQTT_CLIENT, api=API
+    )
+
+    try:
+        MYFOX = MyFox2Mqtt(api=API, mqtt_client=MQTT_CLIENT, config=CONFIG)
+
+    except MyFoxInitError as exp:
+        LOGGER.error(f"Unable to init: {exp}")
+        close_and_exit(None, None, None, 1)
+
+    # Trigger Ctrl-C
+    signal(SIGINT, partial(close_and_exit, MYFOX, 0))
+    signal(SIGTERM, partial(close_and_exit, MYFOX, 0))
+
+    try:
+        p1 = threading.Thread(target=myfox_loop, args=(MYFOX,))
+        # p2 = threading.Thread(target=myfox_wss_loop, args=(WSS,))
+        p1.start()
+        # p2.start()
+    except Exception as exp:
+        LOGGER.error(f"Force stopping application {exp}")
+        close_and_exit(MYFOX, 3)
