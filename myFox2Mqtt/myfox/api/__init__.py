@@ -1,20 +1,15 @@
 """MyFox Api"""
-import base64
 import logging
 from json import JSONDecodeError
-from typing import Any, Callable, Dict, List, Optional, Union
-
-from oauthlib.oauth2 import TokenExpiredError
-from requests import Response
-from requests_oauthlib import OAuth2Session
+from typing import Any, Dict, List, Optional
 
 from myfox.api.devices.category import Category
 from myfox.api.model import AvailableStatus, Device, Site, User
-
-from myfox.sso import MyFoxSso, read_token_from_file
+from myfox.sso import MyFoxSso
+from oauthlib.oauth2 import TokenExpiredError
+from requests import Response
 
 LOGGER = logging.getLogger(__name__)
-
 
 BASE_URL = "https://api.myfox.me"
 
@@ -135,8 +130,22 @@ class MyFoxApi:
         """
         response = self.get("/v2/client/site/items")
         response.raise_for_status()
-        print(response.json())
         return [Site(**s) for s in response.json().get("payload").get("items")]
+
+    def get_site(self, site_id: str) -> Dict:
+        """Get Site
+
+        Args:
+            site_id (str): Site ID
+
+
+        Returns:
+            Site: Site object
+        """
+        response = self.get(f"/v2/site/{site_id}")
+        response.raise_for_status()
+        LOGGER.debug(f"Site: {response.json()}")
+        return response.json()
 
     def get_site_status(self, site_id: str) -> Dict:
         """Get Site
@@ -150,6 +159,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}/security")
         response.raise_for_status()
+        LOGGER.debug(f"Site Status: {response.json()}")
         return response.json()
 
     def update_security_level(
@@ -163,9 +173,8 @@ class MyFoxApi:
         Returns:
             Dict: requests Response object
         """
-        security_level = {"status": security_level.lower()}
         response = self.post(
-            f"/v2/site/{site_id}/security/set/{security_level}", json={}
+            f"/v2/site/{site_id}/security/set/{security_level.lower()}", json={}
         )
         response.raise_for_status()
         return response.json()
@@ -308,10 +317,10 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices Capabilities: {response.json()}")
+        LOGGER.debug(f"Devices: {response.json()}")
         devices += [
             Device(**d)
-            for d in content.get("items")
+            for d in content.get("payload").get("items")
             if category is None
             or category.value.lower()
             in Device(**d).device_definition.get("label").lower()
@@ -331,6 +340,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}/device/{device_id}")
         response.raise_for_status()
+        LOGGER.debug(f"Device: {response.json()}")
         return Device(**response.json())
 
     def get_users(self, site_id: str) -> List[User]:
@@ -416,6 +426,162 @@ class MyFoxApi:
         Returns:
             ??
         """
-        response = self.get(f"/v2/site/{site_id}/scenario")
+        response = self.get(f"/v2/site/{site_id}/scenario/items")
         response.raise_for_status()
         return response.json()
+
+    def get_devices_temperature(
+        self, site_id: str, category: Optional[Category] = None
+    ) -> List[Device]:
+        """List Devices from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+            category (Optional[Category], optional): [description]. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        devices = []  # type: List[Device]
+        response = self.get(f"/v2/site/{site_id}/device/data/temperature/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.debug(f"Devices Temperature: {response.json()}")
+        return content.get("payload").get("items")
+
+    def get_device_temperature(self, site_id: str, device_id: str) -> Device:
+        """Get Device
+
+        Args:
+            site_id (str): Site ID
+            device_id (str): Site ID
+
+        Returns:
+            Device: Device object
+        """
+        response = self.get(
+            f"/v2/site/{site_id}/device/{device_id}/data/temperature/"
+        )
+        response.raise_for_status()
+        LOGGER.debug(f"Device: {response.json()}")
+        return response.json()
+
+    def get_devices_state(
+        self, site_id: str, category: Optional[Category] = None
+    ) -> List[Device]:
+        """List Devices from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+            category (Optional[Category], optional): [description]. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        devices = []  # type: List[Device]
+        response = self.get(f"/v2/site/{site_id}/device/data/state/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.debug(f"Devices State: {response.json()}")
+        return content.get("payload").get("items")
+
+    def get_device_state(self, site_id: str, device_id: str) -> Device:
+        """Get Device
+
+        Args:
+            site_id (str): Site ID
+            device_id (str): Site ID
+
+        Returns:
+            Device: Device object
+        """
+        response = self.get(
+            f"/v2/site/{site_id}/device/{device_id}/data/state/"
+        )
+        response.raise_for_status()
+        LOGGER.debug(f"Device: {response.json()}")
+        return response.json()
+
+    def get_devices_light(
+        self, site_id: str, category: Optional[Category] = None
+    ) -> List[Device]:
+        """List Devices from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+            category (Optional[Category], optional): [description]. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        devices = []  # type: List[Device]
+        response = self.get(f"/v2/site/{site_id}/device/data/light/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.debug(f"Devices Light: {response.json()}")
+        return content.get("payload").get("items")
+
+    def get_device_light(self, site_id: str, device_id: str) -> Device:
+        """Get Device
+
+        Args:
+            site_id (str): Site ID
+            device_id (str): Site ID
+
+        Returns:
+            Device: Device object
+        """
+        response = self.get(
+            f"/v2/site/{site_id}/device/{device_id}/data/light/"
+        )
+        response.raise_for_status()
+        LOGGER.debug(f"Device: {response.json()}")
+        return response.json()
+
+    def get_devices_other(
+        self, site_id: str, category: Optional[Category] = None
+    ) -> List[Device]:
+        """List Devices from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+            category (Optional[Category], optional): [description]. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        devices = []  # type: List[Device]
+        response = self.get(f"/v2/site/{site_id}/device/data/other/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.debug(f"Devices Other: {response.json()}")
+        return content.get("payload").get("items")
+
+    def get_devices_camera(
+        self, site_id: str, category: Optional[Category] = None
+    ) -> List[Device]:
+        """List Devices from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+            category (Optional[Category], optional): [description]. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        devices = []  # type: List[Device]
+        response = self.get(f"/v2/site/{site_id}/device/camera/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.debug(f"Devices Camera: {response.json()}")
+        return content.get("payload").get("items")

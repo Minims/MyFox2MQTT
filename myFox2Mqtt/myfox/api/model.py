@@ -74,42 +74,30 @@ class Device:
     """Device Object"""
 
     __slots__ = (
-        "id",
-        "site_id",
-        "box_id",
+        "device_id",
         "label",
-        "version",
         "device_definition",
-        "status",
-        "diagnosis",
         "settings",
-        "update_available",
+        "created_at",
+        "zone_family",
     )
 
     def __init__(
         self,
         device_id: str,
-        site_id: str,
-        box_id: str,
         label: str,
-        version: str,
         device_definition: Dict,
-        status: Dict,
-        diagnosis: Dict,
         settings: Dict,
-        update_available: str,
+        created_at: str,
+        zone_family: str,
         **_: Any,
     ):
-        self.id = device_id  # pylint: disable=invalid-name
-        self.site_id = site_id
-        self.box_id = box_id
+        self.id = device_id
         self.label = label
-        self.version = version
         self.device_definition = device_definition
-        self.status = status
-        self.diagnosis = diagnosis
         self.settings = settings
-        self.update_available = update_available
+        self.created_at = created_at
+        self.zone_family = zone_family
 
 
 class AvailableStatus(Enum):

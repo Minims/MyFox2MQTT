@@ -12,6 +12,60 @@ ALARM_STATUS = {
 }
 
 DEVICE_CAPABILITIES = {
+    "exit_delay": {
+        "type": "number",
+        "config": {"min": 0, "max": 120, "step": 5},
+    },
+    "entrance_delay": {
+        "type": "number",
+        "config": {"min": 0, "max": 120, "step": 5},
+    },
+    "image_detection_sensitivity": {
+        "type": "number",
+        "config": {"min": 0, "max": 100, "step": 1},
+    },
+    "image_detection_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "jamming_detection_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "silent_mode_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "privacy_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "night_mode": {
+        "type": "select",
+        "config": {
+            "options": ["automatic", "manual"],
+        },
+    },
+    ## PROTECT ##
     "temperature": {
         "type": "sensor",
         "config": {
@@ -263,10 +317,6 @@ DEVICE_CAPABILITIES = {
         "type": "sensor",
         "config": {},
     },
-    "night_mode": {
-        "type": "sensor",
-        "config": {},
-    },
     "mfa_quality_percent": {
         "type": "sensor",
         "config": {
@@ -458,13 +508,6 @@ DEVICE_CAPABILITIES = {
         },
     },
     "prealarm_enabled": {
-        "type": "switch",
-        "config": {
-            "pl_on": "True",
-            "pl_off": "False",
-        },
-    },
-    "enabled": {
         "type": "switch",
         "config": {
             "pl_on": "True",

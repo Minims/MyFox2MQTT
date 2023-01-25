@@ -24,12 +24,10 @@ def update_device(api, mqtt_client, mqtt_config, site_id, device_id):
     LOGGER.info(f"Live Update device {device_id}")
     try:
         device = api.get_device(site_id=site_id, device_id=device_id)
-        settings = device.settings.get("global")
-        status = device.status
-        status_settings = {**status, **settings}
+        settings = device.settings
 
         # Convert Values to String
-        keys_values = status_settings.items()
+        keys_values = settings.items()
         payload = {str(key): str(value) for key, value in keys_values}
         # Push status to MQTT
         mqtt_publish(
@@ -46,7 +44,7 @@ def update_site(api, mqtt_client, mqtt_config, site_id):
     """Update MQTT data for a site"""
     LOGGER.info(f"Live Update site {site_id}")
     try:
-        site = api.get_site(site_id=site_id)
+        site = api.get_site_status(site_id=site_id)
         # Push status to MQTT
         mqtt_publish(
             mqtt_client=mqtt_client,

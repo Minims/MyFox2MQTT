@@ -130,6 +130,8 @@ dmypy.json
 
 # User Config
 *.jpeg
+debug/
+Pipfile
 config.yaml
 token.json
 .vscode/

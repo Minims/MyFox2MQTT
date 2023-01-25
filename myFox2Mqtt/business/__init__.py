@@ -39,10 +39,11 @@ def ha_sites_config(
                     mqtt_config=mqtt_config,
                     homeassistant_config=homeassistant_config,
                 )
-                site_extended = ha_discovery_alarm_actions(
-                    site=my_site, mqtt_config=mqtt_config
-                )
-                configs = [site, site_extended]
+                # site_extended = ha_discovery_alarm_actions(
+                #    site=my_site, mqtt_config=mqtt_config
+                # )
+                # configs = [site, site_extended]
+                configs = [site]
                 for site_config in configs:
                     mqtt_publish(
                         mqtt_client=mqtt_client,
@@ -65,74 +66,52 @@ def ha_devices_config(
     LOGGER.info("Looking for Devices")
     for site_id in my_sites_id:
         my_devices = api.get_devices(site_id=site_id)
+
+        api.get_devices_temperature(site_id=site_id)
+        api.get_devices_light(site_id=site_id)
+        api.get_devices_state(site_id=site_id)
+        api.get_devices_other(site_id=site_id)
+        api.get_devices_camera(site_id=site_id)
+        api.get_scenarios(site_id=site_id)
+
         for device in my_devices:
             LOGGER.info(f"Configuring Device: {device.label}")
-            settings = device.settings.get("global")
-            status = device.status
-            status_settings = {**status, **settings}
+            settings = device.settings
 
-            for state in status_settings:
-                if not DEVICE_CAPABILITIES.get(state):
-                    LOGGER.debug(f"No Config for {state}")
-                    continue
-                device_config = ha_discovery_devices(
-                    site_id=site_id,
-                    device=device,
-                    mqtt_config=mqtt_config,
-                    sensor_name=state,
-                )
-                mqtt_publish(
-                    mqtt_client=mqtt_client,
-                    topic=device_config.get("topic"),
-                    payload=device_config.get("config"),
-                    retain=True,
-                )
-                if device_config.get("config").get("command_topic"):
-                    mqtt_client.client.subscribe(
-                        device_config.get("config").get("command_topic")
+            for keys in settings:
+                for state in keys:
+                    if not DEVICE_CAPABILITIES.get(state):
+                        LOGGER.debug(f"No Config for {state}")
+                        continue
+                    device_config = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name=state,
                     )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=device_config.get("topic"),
+                        payload=device_config.get("config"),
+                        retain=True,
+                    )
+                    if device_config.get("config").get("command_topic"):
+                        mqtt_client.client.subscribe(
+                            device_config.get("config").get("command_topic")
+                        )
 
-            if "box" in device.device_definition.get("type"):
+            if "Myfox HC2" in device.device_definition.get(
+                "device_definition_label"
+            ):
                 LOGGER.info(
-                    f"Found Link {device.device_definition.get('label')}"
-                )
-                reboot = ha_discovery_devices(
-                    site_id=site_id,
-                    device=device,
-                    mqtt_config=mqtt_config,
-                    sensor_name="reboot",
-                )
-                mqtt_publish(
-                    mqtt_client=mqtt_client,
-                    topic=reboot.get("topic"),
-                    payload=reboot.get("config"),
-                    retain=True,
-                )
-                mqtt_client.client.subscribe(
-                    reboot.get("config").get("command_topic")
+                    f"Found Central {device.device_definition.get('device_definition_label')}"
                 )
 
-                halt = ha_discovery_devices(
-                    site_id=site_id,
-                    device=device,
-                    mqtt_config=mqtt_config,
-                    sensor_name="halt",
-                )
-                mqtt_publish(
-                    mqtt_client=mqtt_client,
-                    topic=halt.get("topic"),
-                    payload=halt.get("config"),
-                    retain=True,
-                )
-                mqtt_client.client.subscribe(
-                    halt.get("config").get("command_topic")
-                )
-
-            if "camera" in device.device_definition.get(
-                "type"
-            ) or "allinone" in device.device_definition.get("type"):
+            if "Myfox Security Camera" in device.device_definition.get(
+                "device_definition_label"
+            ):
                 LOGGER.info(
-                    f"Found Camera {device.device_definition.get('label')}"
+                    f"Found Camera {device.device_definition.get('device_definition_label')}"
                 )
                 camera_config = ha_discovery_cameras(
                     site_id=site_id,
@@ -195,8 +174,12 @@ def ha_devices_config(
                     )
 
             # Works with Websockets
-            if "remote" in device.device_definition.get("type"):
-                LOGGER.info(f"Found {device.device_definition.get('label')}")
+            if "Télécommande 4 boutons" in device.device_definition.get(
+                "device_definition_label"
+            ):
+                LOGGER.info(
+                    f"Found {device.device_definition.get('device_definition_label')}"
+                )
                 key_fob_config = ha_discovery_devices(
                     site_id=site_id,
                     device=device,
@@ -210,11 +193,13 @@ def ha_devices_config(
                     retain=True,
                 )
 
-            if "pir" in device.device_definition.get(
-                "type"
-            ) or "tag" in device.device_definition.get("type"):
+            if "Détecteur de mouvement" in device.device_definition.get(
+                "device_definition_label"
+            ) or "IntelliTAG" in device.device_definition.get(
+                "device_definition_label"
+            ):
                 LOGGER.info(
-                    f"Found Motion Sensor (PIR & IntelliTag) {device.device_definition.get('label')}"
+                    f"Found Motion Sensor (PIR & IntelliTag) {device.device_definition.get('device_definition_label')}"
                 )
                 pir_config = ha_discovery_devices(
                     site_id=site_id,
@@ -245,9 +230,8 @@ def update_sites_status(
     LOGGER.info("Update Sites Status")
     for site_id in my_sites_id:
         try:
-            site = api.get_site(site_id=site_id)
             status = api.get_site_status(site_id=site_id)
-            LOGGER.info(f"Update {site.label} Status")
+            LOGGER.info(f"Update {site_id} Status")
             # Push status to MQTT
             mqtt_publish(
                 mqtt_client=mqtt_client,
