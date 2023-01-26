@@ -84,7 +84,7 @@ class Device:
 
     def __init__(
         self,
-        device_id: str,
+        device_id: int,
         label: str,
         device_definition: Dict,
         settings: Dict,
@@ -92,7 +92,7 @@ class Device:
         zone_family: str,
         **_: Any,
     ):
-        self.id = device_id
+        self.device_id = device_id
         self.label = label
         self.device_definition = device_definition
         self.settings = settings

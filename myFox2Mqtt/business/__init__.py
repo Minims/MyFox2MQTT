@@ -79,7 +79,7 @@ def ha_devices_config(
             settings = device.settings
 
             for keys in settings:
-                for state in keys:
+                for state in settings[keys]:
                     if not DEVICE_CAPABILITIES.get(state):
                         LOGGER.debug(f"No Config for {state}")
                         continue
@@ -261,17 +261,15 @@ def update_devices_status(
             my_devices = api.get_devices(site_id=site_id)
             for device in my_devices:
                 settings = device.settings.get("global")
-                status = device.status
-                status_settings = {**status, **settings}
 
                 # Convert Values to String
-                keys_values = status_settings.items()
+                keys_values = settings.items()
                 payload = {str(key): str(value) for key, value in keys_values}
 
                 # Push status to MQTT
                 mqtt_publish(
                     mqtt_client=mqtt_client,
-                    topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/state",
+                    topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/state",
                     payload=payload,
                     retain=False,
                 )
@@ -296,14 +294,14 @@ def update_camera_snapshot(
                 my_devices = api.get_devices(site_id=site_id, category=category)
                 for device in my_devices:
                     api.camera_refresh_snapshot(
-                        site_id=site_id, device_id=device.id
+                        site_id=site_id, device_id=device.device_id
                     )
                     response = api.camera_snapshot(
-                        site_id=site_id, device_id=device.id
+                        site_id=site_id, device_id=device.device_id
                     )
                     if response.status_code == 200:
                         # Write image to temp file
-                        path = f"{device.id}.jpeg"
+                        path = f"{device.device_id}.jpeg"
                         with open(path, "wb") as tmp_file:
                             for chunk in response:
                                 tmp_file.write(chunk)
@@ -311,7 +309,7 @@ def update_camera_snapshot(
                         with open(path, "rb") as tmp_file:
                             image = tmp_file.read()
                         byte_arr = bytearray(image)
-                        topic = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/snapshot"
+                        topic = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/snapshot"
                         mqtt_publish(
                             mqtt_client=mqtt_client,
                             topic=topic,

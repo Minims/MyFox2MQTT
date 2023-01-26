@@ -14,7 +14,7 @@ from myfox.sso import init_sso
 from myfox.api import MyFoxApi
 from myfox.websocket import MyFoxWebsocket
 
-VERSION = "0.0.0b"
+VERSION = "0.0.0c"
 
 
 def myfox_loop(myfox_2_mqtt):

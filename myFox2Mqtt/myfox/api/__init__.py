@@ -1,5 +1,6 @@
 """MyFox Api"""
 import logging
+import json
 from json import JSONDecodeError
 from typing import Any, Dict, List, Optional
 
@@ -264,7 +265,7 @@ class MyFoxApi:
         response.raise_for_status()
         return response.json()
 
-    def camera_snapshot(self, site_id: str, device_id: str) -> Device:
+    def camera_snapshot(self, site_id: str, device_id: str):
         """Get Camera Snapshot
 
         Args:
@@ -323,9 +324,10 @@ class MyFoxApi:
             for d in content.get("payload").get("items")
             if category is None
             or category.value.lower()
-            in Device(**d).device_definition.get("label").lower()
+            in Device(**d)
+            .device_definition.get("device_definition_label")
+            .lower()
         ]
-
         return devices
 
     def get_device(self, site_id: str, device_id: str) -> Device:
@@ -432,7 +434,7 @@ class MyFoxApi:
 
     def get_devices_temperature(
         self, site_id: str, category: Optional[Category] = None
-    ) -> List[Device]:
+    ):
         """List Devices from a Site ID
 
         Args:
@@ -440,9 +442,7 @@ class MyFoxApi:
             category (Optional[Category], optional): [description]. Defaults to None.
 
         Returns:
-            List[Device]: List of Device object
         """
-        devices = []  # type: List[Device]
         response = self.get(f"/v2/site/{site_id}/device/data/temperature/items")
         try:
             content = response.json()
@@ -451,7 +451,7 @@ class MyFoxApi:
         LOGGER.debug(f"Devices Temperature: {response.json()}")
         return content.get("payload").get("items")
 
-    def get_device_temperature(self, site_id: str, device_id: str) -> Device:
+    def get_device_temperature(self, site_id: str, device_id: str):
         """Get Device
 
         Args:
@@ -470,7 +470,7 @@ class MyFoxApi:
 
     def get_devices_state(
         self, site_id: str, category: Optional[Category] = None
-    ) -> List[Device]:
+    ):
         """List Devices from a Site ID
 
         Args:
@@ -489,7 +489,7 @@ class MyFoxApi:
         LOGGER.debug(f"Devices State: {response.json()}")
         return content.get("payload").get("items")
 
-    def get_device_state(self, site_id: str, device_id: str) -> Device:
+    def get_device_state(self, site_id: str, device_id: str):
         """Get Device
 
         Args:
@@ -508,7 +508,7 @@ class MyFoxApi:
 
     def get_devices_light(
         self, site_id: str, category: Optional[Category] = None
-    ) -> List[Device]:
+    ):
         """List Devices from a Site ID
 
         Args:
@@ -518,7 +518,6 @@ class MyFoxApi:
         Returns:
             List[Device]: List of Device object
         """
-        devices = []  # type: List[Device]
         response = self.get(f"/v2/site/{site_id}/device/data/light/items")
         try:
             content = response.json()
@@ -527,7 +526,7 @@ class MyFoxApi:
         LOGGER.debug(f"Devices Light: {response.json()}")
         return content.get("payload").get("items")
 
-    def get_device_light(self, site_id: str, device_id: str) -> Device:
+    def get_device_light(self, site_id: str, device_id: str):
         """Get Device
 
         Args:
@@ -546,7 +545,7 @@ class MyFoxApi:
 
     def get_devices_other(
         self, site_id: str, category: Optional[Category] = None
-    ) -> List[Device]:
+    ):
         """List Devices from a Site ID
 
         Args:
@@ -556,7 +555,6 @@ class MyFoxApi:
         Returns:
             List[Device]: List of Device object
         """
-        devices = []  # type: List[Device]
         response = self.get(f"/v2/site/{site_id}/device/data/other/items")
         try:
             content = response.json()
@@ -567,7 +565,7 @@ class MyFoxApi:
 
     def get_devices_camera(
         self, site_id: str, category: Optional[Category] = None
-    ) -> List[Device]:
+    ):
         """List Devices from a Site ID
 
         Args:

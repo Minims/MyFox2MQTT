@@ -18,12 +18,8 @@ class MyFoxDevice:
     def refresh_state(self) -> None:
         """Refresh State"""
         self.device = self.api.get_device(
-            site_id=self.site.id, device_id=self.device.id
+            site_id=self.site.id, device_id=self.device.device_id
         )
-
-    def get_version(self) -> float:
-        """Get HW/FW Version"""
-        return self.device.version
 
     def get_status(self, status_name: str) -> Union[str, int, float]:
         """Get a Status for the current device.

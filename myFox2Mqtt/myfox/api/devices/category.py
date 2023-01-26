@@ -7,11 +7,15 @@ class Category(Enum):
     """List of Known Devices"""
 
     LINK = "Link"
-    MYFOX_CAMERA = "Myfox security camera"
-    INDOOR_SIREN = "Myfox Security Siren"
-    OUTDOOR_SIREN = "Myfox Security Outdoor Siren"
-    MOTION = "Myfox Security Infrared Sensor"
-    EXTENDER = "Myfox Security Extender"
+    CENTRAL = "Myfox HC2"
+    INDOOR_SIREN = "Sirène d'intérieur"
+    OUTDOOR_SIREN = "Sirène d'extérieur"
+    MOTION = "Détecteur de mouvement"
+    KEYBOARD = "Clavier"
+    SMOKE_DETECTOR = "Détecteur de fumée"
+    INTELLITAG = "IntelliTAG"
+    TAG = "Capteur TAG"
+    KEY_FOB = "Télécommande 4 boutons"
 
     @classmethod
     def _missing_name_(cls, name):

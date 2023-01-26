@@ -675,28 +675,22 @@ def ha_discovery_devices(
     device_config = {}
     device_type = DEVICE_CAPABILITIES.get(sensor_name).get("type")
 
-    update_available = device.update_available
-    if update_available is False:
-        update_available = "(Up to Date)"
-    else:
-        update_available = f"(New Version Available: {update_available})"
-
     device_info = {
-        "identifiers": [device.id],
+        "identifiers": [device.device_id],
         "manufacturer": "MyFox",
-        "model": device.device_definition.get("label"),
+        "model": device.device_definition.get("device_definition_label"),
         "name": device.label,
-        "sw_version": f"{device.version} {update_available}",
+        "sw_version": "Unknown",
     }
 
-    command_topic = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/{sensor_name}/command"
+    command_topic = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/{sensor_name}/command"
     device_config[
         "topic"
-    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/{device_type}/{site_id}_{device.id}/{sensor_name}/config"
+    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/{device_type}/{site_id}_{device.device_id}/{sensor_name}/config"
     device_config["config"] = {
         "name": f"{device.label} {sensor_name}",
-        "unique_id": f"{device.id}_{sensor_name}",
-        "state_topic": f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/state",
+        "unique_id": f"{device.device_id}_{sensor_name}",
+        "state_topic": f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/state",
         "value_template": "{{ value_json." + sensor_name + " }}",
         "device": device_info,
     }
@@ -707,7 +701,8 @@ def ha_discovery_devices(
         )
         # Specifiy for Intellitag Sensivity
         if (
-            device.device_definition.get("label") == "IntelliTag"
+            device.device_definition.get("device_definition_label")
+            == "IntelliTag"
             and sensor_name == "sensitivity"
         ):
             device_config["config"][config_entry] = (
@@ -724,11 +719,11 @@ def ha_discovery_devices(
     if sensor_name == "presence":
         device_config["config"][
             "state_topic"
-        ] = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/presence"
+        ] = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/presence"
     if sensor_name == "motion_sensor":
         device_config["config"][
             "state_topic"
-        ] = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/pir"
+        ] = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/pir"
 
     return device_config
 
@@ -742,20 +737,20 @@ def ha_discovery_cameras(
     camera_config = {}
 
     device_info = {
-        "identifiers": [device.id],
+        "identifiers": [device.device_id],
         "manufacturer": "MyFox",
-        "model": device.device_definition.get("label"),
+        "model": device.device_definition.get("device_definition_label"),
         "name": device.label,
-        "sw_version": device.version,
+        "sw_version": "Unknown",
     }
 
     camera_config[
         "topic"
-    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/camera/{site_id}_{device.id}/snapshot/config"
+    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/camera/{site_id}_{device.device_id}/snapshot/config"
     camera_config["config"] = {
         "name": f"{device.label} snapshot",
-        "unique_id": f"{device.id}_snapshot",
-        "topic": f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/snapshot",
+        "unique_id": f"{device.device_id}_snapshot",
+        "topic": f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/snapshot",
         "device": device_info,
     }
 

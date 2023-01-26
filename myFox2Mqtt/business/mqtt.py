@@ -32,7 +32,7 @@ def update_device(api, mqtt_client, mqtt_config, site_id, device_id):
         # Push status to MQTT
         mqtt_publish(
             mqtt_client=mqtt_client,
-            topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.id}/state",
+            topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/state",
             payload=payload,
             retain=False,
         )
