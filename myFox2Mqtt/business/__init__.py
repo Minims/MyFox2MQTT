@@ -261,6 +261,9 @@ def update_devices_status(
             my_devices = api.get_devices(site_id=site_id)
             for device in my_devices:
                 settings = device.settings.get("global")
+                # some device has not global values.
+                if not settings:
+                    continue
 
                 # Convert Values to String
                 keys_values = settings.items()
