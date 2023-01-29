@@ -120,7 +120,7 @@ class MyFoxApi:
         Returns:
             Response: requests Response object
         """
-        print(json)
+        LOGGER.info(json)
         return self._request("put", path, json=json)
 
     def get_sites(self) -> List[Site]:
@@ -145,7 +145,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}")
         response.raise_for_status()
-        LOGGER.debug(f"Site: {response.json()}")
+        LOGGER.info(f"Site: {response.json()}")
         return response.json()
 
     def get_site_status(self, site_id: str) -> Dict:
@@ -160,7 +160,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}/security")
         response.raise_for_status()
-        LOGGER.debug(f"Site Status: {response.json()}")
+        LOGGER.info(f"Site Status: {response.json()}")
         return response.json()
 
     def update_security_level(
@@ -318,7 +318,7 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices: {response.json()}")
+        LOGGER.info(f"Devices: {response.json()}")
         devices += [
             Device(**d)
             for d in content.get("payload").get("items")
@@ -342,7 +342,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}/device/{device_id}")
         response.raise_for_status()
-        LOGGER.debug(f"Device: {response.json()}")
+        LOGGER.info(f"Device: {response.json()}")
         return Device(**response.json())
 
     def get_users(self, site_id: str) -> List[User]:
@@ -355,7 +355,6 @@ class MyFoxApi:
             List[User]: List of User object
         """
         response = self.get(f"/v2/site/{site_id}/user")
-        print(response)
         response.raise_for_status()
         return [User(**s) for s in response.json().get("items")]
 
@@ -370,7 +369,6 @@ class MyFoxApi:
             User: User object
         """
         response = self.get(f"/v2/site/{site_id}/user/{user_id}")
-        print(response)
         response.raise_for_status()
         return User(**response.json())
 
@@ -430,6 +428,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}/scenario/items")
         response.raise_for_status()
+        LOGGER.info(f"Scenarios: {response.json()}")
         return response.json()
 
     def get_devices_temperature(
@@ -448,7 +447,7 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices Temperature: {response.json()}")
+        LOGGER.info(f"Devices Temperature: {response.json()}")
         return content.get("payload").get("items")
 
     def get_device_temperature(self, site_id: str, device_id: str):
@@ -465,7 +464,7 @@ class MyFoxApi:
             f"/v2/site/{site_id}/device/{device_id}/data/temperature/"
         )
         response.raise_for_status()
-        LOGGER.debug(f"Device: {response.json()}")
+        LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
     def get_devices_state(
@@ -486,7 +485,7 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices State: {response.json()}")
+        LOGGER.info(f"Devices State: {response.json()}")
         return content.get("payload").get("items")
 
     def get_device_state(self, site_id: str, device_id: str):
@@ -503,7 +502,7 @@ class MyFoxApi:
             f"/v2/site/{site_id}/device/{device_id}/data/state/"
         )
         response.raise_for_status()
-        LOGGER.debug(f"Device: {response.json()}")
+        LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
     def get_devices_light(
@@ -523,7 +522,7 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices Light: {response.json()}")
+        LOGGER.info(f"Devices Light: {response.json()}")
         return content.get("payload").get("items")
 
     def get_device_light(self, site_id: str, device_id: str):
@@ -540,7 +539,7 @@ class MyFoxApi:
             f"/v2/site/{site_id}/device/{device_id}/data/light/"
         )
         response.raise_for_status()
-        LOGGER.debug(f"Device: {response.json()}")
+        LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
     def get_devices_other(
@@ -560,7 +559,7 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices Other: {response.json()}")
+        LOGGER.info(f"Devices Other: {response.json()}")
         return content.get("payload").get("items")
 
     def get_devices_camera(
@@ -581,5 +580,5 @@ class MyFoxApi:
             content = response.json()
         except JSONDecodeError:
             response.raise_for_status()
-        LOGGER.debug(f"Devices Camera: {response.json()}")
+        LOGGER.info(f"Devices Camera: {response.json()}")
         return content.get("payload").get("items")

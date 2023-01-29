@@ -7,25 +7,36 @@ MyFox to MQTT
 Supported :
 
 - Myfox Home Control 2
-- Myfox Home Control Pro
-- Easy Box
-- Evology Zen
+- Myfox Home Control Pro (To validate)
+- Easy Box (To Validate)
+- Evology Zen (To Validate)
 
 https://api.myfox.me
 
 ## What is Working
 
-Nothing
-
-- ...
+- Alarm Control Panel in HA
+  - arm_away
+  - arm_night
+  - alarm status
+- Some devices are exposed in HA with their configuration
 
 ## TODO
 
-- TBD
+- Retrieve Data from specific devices such as PIR (Include Temperature Sensor)
+- Sockets
+- Shutters
+- ...
 
 ## Installation
 
 ### Requirements
+
+- A Client ID & a Client Secret
+
+Go to [myfox API Authentication](https://api.myfox.me/dev/authentication),
+Click on create on \*First step is to create your own personnal\*\*.
+`Client ID` and `Client Secret` can be found at [myfox API - My Applications](https://api.myfox.me/dev/apps).
 
 - Use a myfox dedicated user for homeassistant.
 - This dedicated user must be declared as a owner, not a child.
