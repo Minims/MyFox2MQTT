@@ -1,7 +1,7 @@
 """Models Definition"""
 
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class Site:
@@ -89,7 +89,7 @@ class Device:
         device_definition: Dict,
         settings: Dict,
         created_at: str,
-        zone_family: str,
+        zone_family: Optional[str] = "",
         **_: Any,
     ):
         self.device_id = device_id

@@ -66,28 +66,46 @@ def ha_devices_config(
     LOGGER.info("Looking for Devices")
     for site_id in my_sites_id:
         my_devices = api.get_devices(site_id=site_id)
-
-        api.get_devices_temperature(site_id=site_id)
-        api.get_devices_light(site_id=site_id)
-        api.get_devices_state(site_id=site_id)
-        api.get_devices_other(site_id=site_id)
-        api.get_devices_camera(site_id=site_id)
-        api.get_scenarios(site_id=site_id)
+        temperature_devices = api.get_devices_temperature(site_id=site_id)
+        light_devices = api.get_devices_light(site_id=site_id)
+        state_devices = api.get_devices_state(site_id=site_id)
+        other_devices = api.get_devices_other(site_id=site_id)
+        camera_devices = api.get_devices_camera(site_id=site_id)
+        scenarios = api.get_scenarios(site_id=site_id)
 
         for device in my_devices:
             LOGGER.info(f"Configuring Device: {device.label}")
             settings = device.settings
-
             for keys in settings:
                 for state in settings[keys]:
-                    if not DEVICE_CAPABILITIES.get(state):
-                        LOGGER.debug(f"No Config for {state}")
+                    sensor_name = f"{keys}_{state}"
+                    if keys == "global":
+                        sensor_name = state
+                    if not DEVICE_CAPABILITIES.get(sensor_name):
+                        LOGGER.debug(f"No Config for {sensor_name}")
                         continue
+
+                    # make clean
+                    clean_device_config = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name=sensor_name,
+                    )
+
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=clean_device_config.get("topic"),
+                        payload="",
+                        retain=True,
+                    )
+
+                    # end make clean
                     device_config = ha_discovery_devices(
                         site_id=site_id,
                         device=device,
                         mqtt_config=mqtt_config,
-                        sensor_name=state,
+                        sensor_name=sensor_name,
                     )
                     mqtt_publish(
                         mqtt_client=mqtt_client,
@@ -101,6 +119,8 @@ def ha_devices_config(
                         )
 
             if "Myfox HC2" in device.device_definition.get(
+                "device_definition_label"
+            ) or "Evology" in device.device_definition.get(
                 "device_definition_label"
             ):
                 LOGGER.info(
@@ -260,14 +280,25 @@ def update_devices_status(
         try:
             my_devices = api.get_devices(site_id=site_id)
             for device in my_devices:
-                settings = device.settings.get("global")
+                settings = device.settings
+
                 # some device has not global values.
                 if not settings:
                     continue
 
-                # Convert Values to String
-                keys_values = settings.items()
-                payload = {str(key): str(value) for key, value in keys_values}
+                keys_values = {}
+
+                for keys in settings:
+                    for state in settings[keys]:
+                        sensor_name = f"{keys}_{state}"
+                        if keys == "global":
+                            sensor_name = state
+
+                        keys_values[sensor_name] = settings[keys][state]
+
+                payload = {
+                    str(key): str(value) for key, value in keys_values.items()
+                }
 
                 # Push status to MQTT
                 mqtt_publish(
@@ -276,6 +307,7 @@ def update_devices_status(
                     payload=payload,
                     retain=False,
                 )
+
         except Exception as exp:
             LOGGER.warning(f"Error while refreshing devices: {exp}")
             continue

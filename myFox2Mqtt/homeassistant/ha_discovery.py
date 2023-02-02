@@ -52,6 +52,27 @@ DEVICE_CAPABILITIES = {
             "pl_off": "False",
         },
     },
+    "armed_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "partial_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
+    "disarmed_enabled": {
+        "type": "switch",
+        "config": {
+            "pl_on": "True",
+            "pl_off": "False",
+        },
+    },
     "privacy_enabled": {
         "type": "switch",
         "config": {

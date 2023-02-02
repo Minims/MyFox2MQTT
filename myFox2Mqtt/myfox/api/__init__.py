@@ -131,6 +131,7 @@ class MyFoxApi:
         """
         response = self.get("/v2/client/site/items")
         response.raise_for_status()
+        LOGGER.info(f"Sites: {response.json()}")
         return [Site(**s) for s in response.json().get("payload").get("items")]
 
     def get_site(self, site_id: str) -> Dict:
