@@ -6,10 +6,10 @@ MyFox to MQTT
 
 Supported :
 
-- Myfox Home Control 2
+- Myfox Home Control 2 ✅
+- Evology Zen ✅
 - Myfox Home Control Pro (To validate)
 - Easy Box (To Validate)
-- Evology Zen (To Validate)
 
 https://api.myfox.me
 
