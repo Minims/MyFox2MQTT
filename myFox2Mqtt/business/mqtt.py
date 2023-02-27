@@ -125,7 +125,6 @@ def consume_mqtt_message(msg, mqtt_config: dict, api: MyFoxApi, mqtt_client: cli
             device_id = msg.topic.split("/")[2]
             if text_payload == "True":
                 LOGGER.info("Manual Snapshot")
-                api.camera_refresh_snapshot(site_id=site_id, device_id=device_id)
                 response = api.camera_snapshot(site_id=site_id, device_id=device_id)
                 if response.status_code == 200:
                     # Write image to temp file

@@ -16,6 +16,7 @@ class Category(Enum):
     INTELLITAG = "IntelliTAG"
     TAG = "Capteur TAG"
     KEY_FOB = "Télécommande 4 boutons"
+    MYFOX_CAMERA = "Myfox Security Camera"
 
     @classmethod
     def _missing_name_(cls, name):

@@ -94,13 +94,13 @@ class MyFox2Mqtt:
             mqtt_config=self.mqtt_config,
             my_sites_id=self.my_sites_id,
         )
-        # if not self.manual_snapshot:
-        #     update_camera_snapshot(
-        #         api=self.api,
-        #         mqtt_client=self.mqtt_client,
-        #         mqtt_config=self.mqtt_config,
-        #         my_sites_id=self.my_sites_id,
-        #     )
+        if not self.manual_snapshot:
+            update_camera_snapshot(
+                api=self.api,
+                mqtt_client=self.mqtt_client,
+                mqtt_config=self.mqtt_config,
+                my_sites_id=self.my_sites_id,
+            )
         update_devices_status(
             api=self.api,
             mqtt_client=self.mqtt_client,
@@ -123,14 +123,14 @@ class MyFox2Mqtt:
             mqtt_config=self.mqtt_config,
             my_sites_id=self.my_sites_id,
         )
-        # if not self.manual_snapshot:
-        #     schedule.every(self.delay_device).seconds.do(
-        #         update_camera_snapshot,
-        #         api=self.api,
-        #         mqtt_client=self.mqtt_client,
-        #         mqtt_config=self.mqtt_config,
-        #         my_sites_id=self.my_sites_id,
-        #     )
+        if not self.manual_snapshot:
+            schedule.every(self.delay_device).seconds.do(
+                update_camera_snapshot,
+                api=self.api,
+                mqtt_client=self.mqtt_client,
+                mqtt_config=self.mqtt_config,
+                my_sites_id=self.my_sites_id,
+            )
 
         while True:
             schedule.run_pending()

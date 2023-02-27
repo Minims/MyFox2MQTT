@@ -94,6 +94,13 @@ DEVICE_CAPABILITIES = {
             "unit_of_measurement": "°C",
         },
     },
+    "lastTemperature": {
+        "type": "sensor",
+        "config": {
+            "device_class": "temperature",
+            "unit_of_measurement": "°C",
+        },
+    },
     "battery_level": {
         "type": "sensor",
         "config": {
@@ -107,6 +114,14 @@ DEVICE_CAPABILITIES = {
             "device_class": "battery",
             "pl_on": "True",
             "pl_off": "False",
+        },
+    },
+    "state": {
+        "type": "binary_sensor",
+        "config": {
+            "device_class": "smoke",
+            "pl_on": "1",
+            "pl_off": "0",
         },
     },
     "rlink_quality": {

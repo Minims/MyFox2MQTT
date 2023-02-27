@@ -55,7 +55,7 @@ if __name__ == "__main__":
     SSO = init_sso(config=CONFIG)
     API = MyFoxApi(sso=SSO)
     MQTT_CLIENT = init_mqtt(config=CONFIG, api=API)
-    WSS = MyFoxWebsocket(sso=SSO, debug=DEBUG, config=CONFIG, mqtt_client=MQTT_CLIENT, api=API)
+    # WSS = MyFoxWebsocket(sso=SSO, debug=DEBUG, config=CONFIG, mqtt_client=MQTT_CLIENT, api=API)
 
     try:
         MYFOX = MyFox2Mqtt(api=API, mqtt_client=MQTT_CLIENT, config=CONFIG)

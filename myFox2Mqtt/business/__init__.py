@@ -175,6 +175,42 @@ def ha_devices_config(
                 if device_config.get("config").get("command_topic"):
                     mqtt_client.client.subscribe(device_config.get("config").get("command_topic"))
 
+            # Temperature
+            for temperature_device in temperature_devices:
+                if temperature_device.get("deviceId") == device.device_id:
+                    LOGGER.info(
+                        f"Found Temperature for {device.device_id}: {temperature_device.get('lastTemperature')}"
+                    )
+                    temperature = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="lastTemperature",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=temperature.get("topic"),
+                        payload=temperature.get("config"),
+                        retain=True,
+                    )
+
+            # Smoke
+            for other_device in other_devices:
+                if other_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Smoke for {device.device_id}: {other_device.get('state')}")
+                    smoke = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="state",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=smoke.get("topic"),
+                        payload=smoke.get("config"),
+                        retain=True,
+                    )
+
             # Works with Websockets
             if "Télécommande 4 boutons" in device.device_definition.get("device_definition_label"):
                 LOGGER.info(f"Found {device.device_definition.get('device_definition_label')}")
@@ -251,6 +287,13 @@ def update_devices_status(
     for site_id in my_sites_id:
         try:
             my_devices = api.get_devices(site_id=site_id)
+            temperature_devices = api.get_devices_temperature(site_id=site_id)
+            light_devices = api.get_devices_light(site_id=site_id)
+            state_devices = api.get_devices_state(site_id=site_id)
+            other_devices = api.get_devices_other(site_id=site_id)
+            camera_devices = api.get_devices_camera(site_id=site_id)
+            scenarios = api.get_scenarios(site_id=site_id)
+
             for device in my_devices:
                 settings = device.settings
 
@@ -267,6 +310,16 @@ def update_devices_status(
                             sensor_name = state
 
                         keys_values[sensor_name] = settings[keys][state]
+
+                # Temperature
+                for temperature_device in temperature_devices:
+                    if temperature_device.get("deviceId") == device.device_id:
+                        keys_values["lastTemperature"] = temperature_device.get("lastTemperature")
+
+                # Smoke
+                for other_device in other_devices:
+                    if other_device.get("deviceId") == device.device_id:
+                        keys_values["state"] = other_device.get("state")
 
                 payload = {str(key): str(value) for key, value in keys_values.items()}
 
@@ -298,7 +351,6 @@ def update_camera_snapshot(
             ]:
                 my_devices = api.get_devices(site_id=site_id, category=category)
                 for device in my_devices:
-                    api.camera_refresh_snapshot(site_id=site_id, device_id=device.device_id)
                     response = api.camera_snapshot(site_id=site_id, device_id=device.device_id)
                     if response.status_code == 200:
                         # Write image to temp file

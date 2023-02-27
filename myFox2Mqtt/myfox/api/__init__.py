@@ -265,29 +265,12 @@ class MyFoxApi:
             Response: Response Image
         """
         response = self.post(
-            f"/video/site/{site_id}/device/{device_id}/snapshot",
-            json={"refresh": 10},
+            f"/v2/site/{site_id}/device/{device_id}/camera/preview/take",
+            json={},
         )
         response.raise_for_status()
         if response.status_code == 200:
             return response
-
-    def camera_refresh_snapshot(self, site_id: str, device_id: str) -> Device:
-        """Get Camera Snapshot
-
-        Args:
-            site_id (str): Site ID
-            device_id (str): Site ID
-
-        Returns:
-            Task: MyFox Task
-        """
-        response = self.post(
-            f"/video/site/{site_id}/device/{device_id}/refresh-snapshot",
-            json={},
-        )
-        response.raise_for_status()
-        return response.json()
 
     def get_devices(self, site_id: str, category: Optional[Category] = None) -> List[Device]:
         """List Devices from a Site ID
