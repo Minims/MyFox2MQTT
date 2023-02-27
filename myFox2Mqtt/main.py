@@ -14,7 +14,7 @@ from myfox.sso import init_sso
 from myfox.api import MyFoxApi
 from myfox.websocket import MyFoxWebsocket
 
-VERSION = "0.0.2"
+VERSION = "2023.3.0"
 
 
 def myfox_loop(myfox_2_mqtt):
@@ -39,12 +39,8 @@ if __name__ == "__main__":
 
     # Read Arguments
     PARSER = argparse.ArgumentParser()
-    PARSER.add_argument(
-        "--verbose", "-v", action="store_true", help="verbose mode"
-    )
-    PARSER.add_argument(
-        "--configuration", "-c", type=str, help="config file path"
-    )
+    PARSER.add_argument("--verbose", "-v", action="store_true", help="verbose mode")
+    PARSER.add_argument("--configuration", "-c", type=str, help="config file path")
     ARGS = PARSER.parse_args()
     DEBUG = ARGS.verbose
     CONFIG_FILE = ARGS.configuration
@@ -59,9 +55,7 @@ if __name__ == "__main__":
     SSO = init_sso(config=CONFIG)
     API = MyFoxApi(sso=SSO)
     MQTT_CLIENT = init_mqtt(config=CONFIG, api=API)
-    WSS = MyFoxWebsocket(
-        sso=SSO, debug=DEBUG, config=CONFIG, mqtt_client=MQTT_CLIENT, api=API
-    )
+    WSS = MyFoxWebsocket(sso=SSO, debug=DEBUG, config=CONFIG, mqtt_client=MQTT_CLIENT, api=API)
 
     try:
         MYFOX = MyFox2Mqtt(api=API, mqtt_client=MQTT_CLIENT, config=CONFIG)

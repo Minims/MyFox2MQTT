@@ -75,17 +75,11 @@ class MyFoxApi:
 
         url = f"{BASE_URL}{path}"
         try:
-            return getattr(self.sso._oauth, method)(
-                url, **kwargs
-            )  # pylint: disable=protected-access
+            return getattr(self.sso._oauth, method)(url, **kwargs)  # pylint: disable=protected-access
         except TokenExpiredError:
-            self.sso._oauth.token = (
-                self.sso.refresh_tokens()
-            )  # pylint: disable=protected-access
+            self.sso._oauth.token = self.sso.refresh_tokens()  # pylint: disable=protected-access
 
-            return getattr(self.sso._oauth, method)(
-                url, **kwargs
-            )  # pylint: disable=protected-access
+            return getattr(self.sso._oauth, method)(url, **kwargs)  # pylint: disable=protected-access
 
     def get(self, path: str) -> Response:
         """Fetch an URL from the MyFox API.
@@ -164,9 +158,7 @@ class MyFoxApi:
         LOGGER.info(f"Site Status: {response.json()}")
         return response.json()
 
-    def update_security_level(
-        self, site_id: str, security_level: AvailableStatus
-    ) -> Dict:
+    def update_security_level(self, site_id: str, security_level: AvailableStatus) -> Dict:
         """Set Alarm Security Level
 
         Args:
@@ -175,9 +167,7 @@ class MyFoxApi:
         Returns:
             Dict: requests Response object
         """
-        response = self.post(
-            f"/v2/site/{site_id}/security/set/{security_level.lower()}", json={}
-        )
+        response = self.post(f"/v2/site/{site_id}/security/set/{security_level.lower()}", json={})
         response.raise_for_status()
         return response.json()
 
@@ -260,9 +250,7 @@ class MyFoxApi:
         settings.pop("object")
 
         payload = {"settings": settings, "label": device_label}
-        response = self.put(
-            f"/v2/site/{site_id}/device/{device_id}", json=payload
-        )
+        response = self.put(f"/v2/site/{site_id}/device/{device_id}", json=payload)
         response.raise_for_status()
         return response.json()
 
@@ -301,9 +289,7 @@ class MyFoxApi:
         response.raise_for_status()
         return response.json()
 
-    def get_devices(
-        self, site_id: str, category: Optional[Category] = None
-    ) -> List[Device]:
+    def get_devices(self, site_id: str, category: Optional[Category] = None) -> List[Device]:
         """List Devices from a Site ID
 
         Args:
@@ -324,10 +310,7 @@ class MyFoxApi:
             Device(**d)
             for d in content.get("payload").get("items")
             if category is None
-            or category.value.lower()
-            in Device(**d)
-            .device_definition.get("device_definition_label")
-            .lower()
+            or category.value.lower() in Device(**d).device_definition.get("device_definition_label").lower()
         ]
         return devices
 
@@ -432,9 +415,7 @@ class MyFoxApi:
         LOGGER.info(f"Scenarios: {response.json()}")
         return response.json()
 
-    def get_devices_temperature(
-        self, site_id: str, category: Optional[Category] = None
-    ):
+    def get_devices_temperature(self, site_id: str, category: Optional[Category] = None):
         """List Devices from a Site ID
 
         Args:
@@ -461,16 +442,12 @@ class MyFoxApi:
         Returns:
             Device: Device object
         """
-        response = self.get(
-            f"/v2/site/{site_id}/device/{device_id}/data/temperature/"
-        )
+        response = self.get(f"/v2/site/{site_id}/device/{device_id}/data/temperature/")
         response.raise_for_status()
         LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
-    def get_devices_state(
-        self, site_id: str, category: Optional[Category] = None
-    ):
+    def get_devices_state(self, site_id: str, category: Optional[Category] = None):
         """List Devices from a Site ID
 
         Args:
@@ -499,16 +476,12 @@ class MyFoxApi:
         Returns:
             Device: Device object
         """
-        response = self.get(
-            f"/v2/site/{site_id}/device/{device_id}/data/state/"
-        )
+        response = self.get(f"/v2/site/{site_id}/device/{device_id}/data/state/")
         response.raise_for_status()
         LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
-    def get_devices_light(
-        self, site_id: str, category: Optional[Category] = None
-    ):
+    def get_devices_light(self, site_id: str, category: Optional[Category] = None):
         """List Devices from a Site ID
 
         Args:
@@ -536,16 +509,12 @@ class MyFoxApi:
         Returns:
             Device: Device object
         """
-        response = self.get(
-            f"/v2/site/{site_id}/device/{device_id}/data/light/"
-        )
+        response = self.get(f"/v2/site/{site_id}/device/{device_id}/data/light/")
         response.raise_for_status()
         LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
-    def get_devices_other(
-        self, site_id: str, category: Optional[Category] = None
-    ):
+    def get_devices_other(self, site_id: str, category: Optional[Category] = None):
         """List Devices from a Site ID
 
         Args:
@@ -563,9 +532,7 @@ class MyFoxApi:
         LOGGER.info(f"Devices Other: {response.json()}")
         return content.get("payload").get("items")
 
-    def get_devices_camera(
-        self, site_id: str, category: Optional[Category] = None
-    ):
+    def get_devices_camera(self, site_id: str, category: Optional[Category] = None):
         """List Devices from a Site ID
 
         Args:

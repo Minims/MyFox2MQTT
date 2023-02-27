@@ -24,9 +24,7 @@ class MyFox2Mqtt:
         MyFoxInitError: Unable to init
     """
 
-    def __init__(
-        self, api: MyFoxApi, mqtt_client: MQTTClient, config: dict
-    ) -> None:
+    def __init__(self, api: MyFoxApi, mqtt_client: MQTTClient, config: dict) -> None:
         """Init MyFox2Mqtt
 
         Args:
@@ -67,9 +65,7 @@ class MyFox2Mqtt:
                 LOGGER.info(f"Storing Site ID for {site.label}")
                 self.my_sites_id.append(site.siteId)
             else:
-                LOGGER.info(
-                    f"Site '{site.label}' is not set in configuration, Update it if you want to add this Site"
-                )
+                LOGGER.info(f"Site '{site.label}' is not set in configuration, Update it if you want to add this Site")
 
     def close(self) -> None:  # pylint: disable=no-self-use
         """Close"""
