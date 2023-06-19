@@ -533,3 +533,20 @@ class MyFoxApi:
             response.raise_for_status()
         LOGGER.info(f"Devices Camera: {response.json()}")
         return content.get("payload").get("items")
+
+    def get_site_history(self, site_id: str):
+        """Get Site History from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+
+        Returns:
+            List[Event]: List of Event
+        """
+        response = self.get(f"/v2/site/{site_id}/history")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.info(f"Site History: {response.json()}")
+        return content.get("payload").get("items")

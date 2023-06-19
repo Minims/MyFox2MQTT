@@ -262,6 +262,23 @@ def update_sites_status(
     LOGGER.info("Update Sites Status")
     for site_id in my_sites_id:
         try:
+            payload = {}
+            events = api.get_site_history(site_id=site_id)
+            for event in events:
+                payload[{event.get("createdAt")}] = f"{event.get('type')} {event.get('label')}"
+
+            # Push status to MQTT
+            mqtt_publish(
+                mqtt_client=mqtt_client,
+                topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
+                payload=payload,
+                retain=False,
+            )
+        except Exception as exp:
+            LOGGER.warning(f"Error while getting site history: {exp}")
+            continue
+
+        try:
             status = api.get_site_status(site_id=site_id)
             LOGGER.info(f"Update {site_id} Status")
             # Push status to MQTT
