@@ -42,12 +42,13 @@ def update_site(api, mqtt_client, mqtt_config, site_id):
     """Update MQTT data for a site"""
     LOGGER.info(f"Live Update site {site_id}")
     try:
-        site = api.get_site_status(site_id=site_id)
+        status = api.get_site_status(site_id=site_id)
+        LOGGER.info(f"Update {site_id} Status")
         # Push status to MQTT
         mqtt_publish(
             mqtt_client=mqtt_client,
             topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/state",
-            payload={"security_level": ALARM_STATUS.get(site.security_level, "disarmed")},
+            payload={"security_level": ALARM_STATUS.get(status.get("payload").get("statusLabel"), "disarmed")},
             retain=False,
         )
     except Exception as exp:
