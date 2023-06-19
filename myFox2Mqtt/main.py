@@ -14,7 +14,7 @@ from myfox.sso import init_sso
 from myfox.api import MyFoxApi
 from myfox.websocket import MyFoxWebsocket
 
-VERSION = "2023.3.0"
+VERSION = "2023.6.0"
 
 
 def myfox_loop(myfox_2_mqtt):
@@ -36,7 +36,6 @@ def myfox_wss_loop(myfox_websocket):
 
 
 if __name__ == "__main__":
-
     # Read Arguments
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--verbose", "-v", action="store_true", help="verbose mode")

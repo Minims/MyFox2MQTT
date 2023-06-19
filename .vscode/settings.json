@@ -1,5 +1,12 @@
 {
     "python.formatting.blackArgs": [
         "-l 120"
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none",
+    "black-formatter.args": [
+        "-l 120"
     ]
 }
