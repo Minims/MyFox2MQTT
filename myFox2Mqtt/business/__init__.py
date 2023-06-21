@@ -265,7 +265,7 @@ def update_sites_status(
             payload = {}
             events = api.get_site_history(site_id=site_id)
             for event in events:
-                payload[{event.get("createdAt")}] = f"{event.get('type')} {event.get('label')}"
+                payload[event.get("createdAt")] = f"{event.get('type')} {event.get('label')}"
 
             # Push status to MQTT
             mqtt_publish(
