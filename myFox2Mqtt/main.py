@@ -5,6 +5,7 @@ import logging
 import threading
 from functools import partial
 from signal import SIGINT, SIGTERM, signal
+import time
 
 from exceptions import MyFoxInitError
 from myfox_2_mqtt import MyFox2Mqtt
@@ -17,22 +18,25 @@ from myfox.websocket import MyFoxWebsocket
 VERSION = "2023.8.0"
 
 
-def myfox_loop(myfox_2_mqtt):
+def myfox_loop(config, mqtt_client, api):
     """MyFox 2 MQTT Loop"""
     try:
-        myfox_2_mqtt.loop()
-    except Exception as exp:
-        LOGGER.error(f"Force stopping Api {exp}")
-        close_and_exit(myfox_2_mqtt, 3)
+        myfox_api = MyFox2Mqtt(api=api, mqtt_client=mqtt_client, config=config)
+        time.sleep(1)
+        myfox_api.loop()
+    except MyFoxInitError as exc:
+        LOGGER.error(f"Force stopping Api {exc}")
+        close_and_exit(myfox_api, 3)
 
 
-def myfox_wss_loop(myfox_websocket):
+def myfox_wss_loop(sso, debug, config, mqtt_client, api):
     """MyFox WSS Loop"""
     try:
-        myfox_websocket.run_forever()
-    except Exception as exp:
-        LOGGER.error(f"Force stopping WebSocket {exp}")
-        close_and_exit(myfox_websocket, 3)
+        wss = MyFoxWebsocket(sso=sso, debug=debug, config=config, mqtt_client=mqtt_client, api=api)
+        wss.run_forever()
+    except Exception as exc:
+        LOGGER.error(f"Force stopping WebSocket {exc}")
+        close_and_exit(wss, 3)
 
 
 if __name__ == "__main__":
@@ -54,24 +58,49 @@ if __name__ == "__main__":
     SSO = init_sso(config=CONFIG)
     API = MyFoxApi(sso=SSO)
     MQTT_CLIENT = init_mqtt(config=CONFIG, api=API)
-    # WSS = MyFoxWebsocket(sso=SSO, debug=DEBUG, config=CONFIG, mqtt_client=MQTT_CLIENT, api=API)
-
-    try:
-        MYFOX = MyFox2Mqtt(api=API, mqtt_client=MQTT_CLIENT, config=CONFIG)
-
-    except MyFoxInitError as exp:
-        LOGGER.error(f"Unable to init: {exp}")
-        close_and_exit(None, None, None, 1)
 
     # Trigger Ctrl-C
-    signal(SIGINT, partial(close_and_exit, MYFOX, 0))
-    signal(SIGTERM, partial(close_and_exit, MYFOX, 0))
+    signal(SIGINT, partial(close_and_exit, MyFox2Mqtt, 0))
+    signal(SIGTERM, partial(close_and_exit, MyFox2Mqtt, 0))
+    signal(SIGINT, partial(close_and_exit, MyFoxWebsocket, 0))
+    signal(SIGTERM, partial(close_and_exit, MyFoxWebsocket, 0))
 
     try:
-        p1 = threading.Thread(target=myfox_loop, args=(MYFOX,))
-        # p2 = threading.Thread(target=myfox_wss_loop, args=(WSS,))
+        p1 = threading.Thread(
+            target=myfox_loop,
+            args=(
+                CONFIG,
+                MQTT_CLIENT,
+                API,
+            ),
+        )
+        # p2 = threading.Thread(
+        #     target=myfox_wss_loop,
+        #     args=(
+        #         SSO,
+        #         DEBUG,
+        #         CONFIG,
+        #         MQTT_CLIENT,
+        #         API,
+        #     ),
+        # )
         p1.start()
         # p2.start()
+        # p2.join()
+        # while True:
+        #     if not p2.is_alive():
+        #         p2 = threading.Thread(
+        #             target=myfox_wss_loop,
+        #             args=(
+        #                 SSO,
+        #                 DEBUG,
+        #                 CONFIG,
+        #                 MQTT_CLIENT,
+        #                 API,
+        #             ),
+        #         )
+        #         p2.start()
+        #         p2.join()
     except Exception as exp:
         LOGGER.error(f"Force stopping application {exp}")
-        close_and_exit(MYFOX, 3)
+        # close_and_exit(MYFOX, 3)
