@@ -85,6 +85,13 @@ def consume_mqtt_message(msg, mqtt_config: dict, api: MyFoxApi, mqtt_client: cli
                 site_id=site_id,
             )
 
+        # Manage Shutter
+        elif text_payload in ["open", "close", "my"]:
+            site_id = msg.topic.split("/")[1]
+            device_id = msg.topic.split("/")[2]
+            LOGGER.info(f"{text_payload} Shutter on {site_id} / {device_id}")
+            api.shutter_action_device(site_id=site_id, device_id=device_id, action=text_payload)
+
         # Manage Siren
         elif text_payload == "panic":
             site_id = msg.topic.split("/")[1]

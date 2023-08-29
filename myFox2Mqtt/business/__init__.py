@@ -70,6 +70,7 @@ def ha_devices_config(
         other_devices = api.get_devices_other(site_id=site_id)
         camera_devices = api.get_devices_camera(site_id=site_id)
         scenarios = api.get_scenarios(site_id=site_id)
+        shutter_devices = api.get_devices_shutter(site_id=site_id)
 
         for device in my_devices:
             LOGGER.info(f"Configuring Device: {device.label}")
@@ -210,6 +211,24 @@ def ha_devices_config(
                         payload=smoke.get("config"),
                         retain=True,
                     )
+
+            # Shutter
+            for shutter_device in shutter_devices:
+                if shutter_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Shutter for {device.device_id}: {shutter_device.get('label')}")
+                    shutter = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="shutter",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=shutter.get("topic"),
+                        payload=shutter.get("config"),
+                        retain=True,
+                    )
+                    mqtt_client.client.subscribe(shutter.get("config").get("command_topic"))
 
             # Works with Websockets
             if "Télécommande 4 boutons" in device.device_definition.get("device_definition_label"):

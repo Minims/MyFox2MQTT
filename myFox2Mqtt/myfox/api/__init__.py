@@ -398,7 +398,7 @@ class MyFoxApi:
         LOGGER.info(f"Scenarios: {response.json()}")
         return response.json()
 
-    def get_devices_temperature(self, site_id: str, category: Optional[Category] = None):
+    def get_devices_temperature(self, site_id: str):
         """List Devices from a Site ID
 
         Args:
@@ -430,7 +430,7 @@ class MyFoxApi:
         LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
-    def get_devices_state(self, site_id: str, category: Optional[Category] = None):
+    def get_devices_state(self, site_id: str):
         """List Devices from a Site ID
 
         Args:
@@ -440,7 +440,6 @@ class MyFoxApi:
         Returns:
             List[Device]: List of Device object
         """
-        devices = []  # type: List[Device]
         response = self.get(f"/v2/site/{site_id}/device/data/state/items")
         try:
             content = response.json()
@@ -464,7 +463,7 @@ class MyFoxApi:
         LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
-    def get_devices_light(self, site_id: str, category: Optional[Category] = None):
+    def get_devices_light(self, site_id: str):
         """List Devices from a Site ID
 
         Args:
@@ -497,7 +496,10 @@ class MyFoxApi:
         LOGGER.info(f"Device: {response.json()}")
         return response.json()
 
-    def get_devices_other(self, site_id: str, category: Optional[Category] = None):
+    def get_devices_other(
+        self,
+        site_id: str,
+    ):
         """List Devices from a Site ID
 
         Args:
@@ -515,7 +517,10 @@ class MyFoxApi:
         LOGGER.info(f"Devices Other: {response.json()}")
         return content.get("payload").get("items")
 
-    def get_devices_camera(self, site_id: str, category: Optional[Category] = None):
+    def get_devices_camera(
+        self,
+        site_id: str,
+    ):
         """List Devices from a Site ID
 
         Args:
@@ -525,7 +530,6 @@ class MyFoxApi:
         Returns:
             List[Device]: List of Device object
         """
-        devices = []  # type: List[Device]
         response = self.get(f"/v2/site/{site_id}/device/camera/items")
         try:
             content = response.json()
@@ -550,3 +554,46 @@ class MyFoxApi:
             response.raise_for_status()
         LOGGER.info(f"Site History: {response.json()}")
         return content.get("payload").get("items")
+
+    def get_devices_shutter(self, site_id: str):
+        """Get Devices Shutter from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        response = self.get(f"/v2/site/{site_id}/device/shutter/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.info(f"Devices Shutter: {response.json()}")
+        return content.get("payload").get("items")
+
+    def shutter_action_device(
+        self,
+        site_id: str,
+        device_id: str,
+        action: str,
+    ) -> Dict:
+        """Make an action on a Shutter
+
+        Args:
+            site_id (str): Site ID
+            device_id (str): Device ID
+            action (str): Action
+
+        Returns:
+            str: Task ID
+        """
+        if action not in ["open", "close", "my"]:
+            raise ValueError(f"Unknown action {action}")
+
+        response = self.post(
+            f"/v2/site/{site_id}/device/{device_id}/shutter/{action}",
+            json={},
+        )
+        response.raise_for_status()
+        return response.json()

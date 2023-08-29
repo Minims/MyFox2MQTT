@@ -24,6 +24,10 @@ DEVICE_CAPABILITIES = {
         "type": "number",
         "config": {"min": 0, "max": 100, "step": 1},
     },
+    "shutter": {
+        "type": "cover",
+        "config": {"pl_open": "open", "pl_close": "close", "pl_stop": "my", "optimistic": "true"},
+    },
     "image_detection_enabled": {
         "type": "switch",
         "config": {
@@ -738,6 +742,10 @@ def ha_discovery_devices(
             )
     if device_type in ("switch", "number", "select", "button"):
         device_config["config"]["command_topic"] = command_topic
+    if device_type in ("cover"):
+        device_config["config"]["command_topic"] = command_topic
+        device_config["config"].pop("state_topic")
+        device_config["config"].pop("value_template")
     if sensor_name == "snapshot":
         device_config["config"].pop("value_template")
     if sensor_name == "presence":
