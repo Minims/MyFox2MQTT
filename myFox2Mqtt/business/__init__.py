@@ -8,6 +8,7 @@ from myfox.api import MyFoxApi
 from myfox.api.devices.category import Category
 from homeassistant.ha_discovery import (
     ha_discovery_alarm,
+    ha_discovery_history,
     ha_discovery_alarm_actions,
     ha_discovery_cameras,
     ha_discovery_devices,
@@ -52,6 +53,19 @@ def ha_sites_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(site_config.get("config").get("command_topic"))
+
+                history = ha_discovery_history(
+                    site=my_site,
+                    mqtt_config=mqtt_config,
+                )
+                configs = [history]
+                for history_config in configs:
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=history_config.get("topic"),
+                        payload=history_config.get("config"),
+                        retain=True,
+                    )
 
 
 def ha_devices_config(
@@ -284,7 +298,8 @@ def update_sites_status(
             payload = {}
             events = api.get_site_history(site_id=site_id)
             for event in events:
-                payload[event.get("createdAt")] = f"{event.get('type')} {event.get('label')}"
+                if event:
+                    payload[event.get("type")] = f"{event.get('createdAt')} {event.get('label')}"
 
             # Push status to MQTT
             mqtt_publish(

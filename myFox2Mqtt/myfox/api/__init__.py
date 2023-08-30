@@ -595,5 +595,6 @@ class MyFoxApi:
             f"/v2/site/{site_id}/device/{device_id}/shutter/{action}",
             json={},
         )
+        LOGGER.info(f"Shutter Action: {response.status_code} => {response.text}")
         response.raise_for_status()
         return response.json()
