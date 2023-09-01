@@ -299,15 +299,15 @@ def update_sites_status(
             events = api.get_site_history(site_id=site_id)
             for event in events:
                 if event:
-                    payload[event.get("type")] = f"{event.get('createdAt')} {event.get('label')}"
+                    payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
 
-            # Push status to MQTT
-            mqtt_publish(
-                mqtt_client=mqtt_client,
-                topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
-                payload=payload,
-                retain=False,
-            )
+                    # Push status to MQTT
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
+                        payload=payload,
+                        retain=False,
+                    )
         except Exception as exp:
             LOGGER.warning(f"Error while getting site history: {exp}")
             continue
