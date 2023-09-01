@@ -58,7 +58,8 @@ def update_site(api, mqtt_client, mqtt_config, site_id):
 def consume_mqtt_message(msg, mqtt_config: dict, api: MyFoxApi, mqtt_client: client):
     """Compute MQTT received message"""
     try:
-        text_payload = msg.payload.decode("UTF-8")
+        text_payload = msg.payload.decode("UTF-8").lower()
+        LOGGER.info(f"MQTT Payload: {text_payload}")
         # Manage Boolean
         if text_payload == "True":
             text_payload = bool(True)
