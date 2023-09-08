@@ -1,5 +1,6 @@
 """Business Functions"""
 import logging
+from datetime import datetime, timedelta
 from time import sleep
 
 from exceptions import MyFoxInitError
@@ -299,15 +300,20 @@ def update_sites_status(
             events = api.get_site_history(site_id=site_id)
             for event in events:
                 if event:
-                    payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
+                    created_at = event.get("createdAt")
+                    date_format = "%Y-%m-%dT%H:%M:%SZ"
+                    created_at_date = datetime.strptime(created_at, date_format)
+                    now = datetime.now()
+                    if now - created_at_date < timedelta(seconds=70):
+                        payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
+                        # Push status to MQTT
+                        mqtt_publish(
+                            mqtt_client=mqtt_client,
+                            topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
+                            payload=payload,
+                            retain=False,
+                        )
 
-                    # Push status to MQTT
-                    mqtt_publish(
-                        mqtt_client=mqtt_client,
-                        topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
-                        payload=payload,
-                        retain=False,
-                    )
         except Exception as exp:
             LOGGER.warning(f"Error while getting site history: {exp}")
             continue
