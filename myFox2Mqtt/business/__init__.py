@@ -13,6 +13,7 @@ from homeassistant.ha_discovery import (
     ha_discovery_alarm_actions,
     ha_discovery_cameras,
     ha_discovery_devices,
+    ha_discovery_scenario_actions,
     DEVICE_CAPABILITIES,
     ALARM_STATUS,
 )
@@ -68,6 +69,24 @@ def ha_sites_config(
                         retain=True,
                     )
 
+                # Scenarios
+                scenarios = api.get_scenarios(site_id=site_id)
+                for scenario in scenarios:
+                    if scenario.get("typeLabel") == "onDemand":
+                        LOGGER.info(f"Found Scenario onDemand {scenario.get('label')}: {scenario.get('scenarioId')}")
+                        play_scenario = ha_discovery_scenario_actions(
+                            site=my_site,
+                            scenario=scenario,
+                            mqtt_config=mqtt_config,
+                        )
+                        mqtt_publish(
+                            mqtt_client=mqtt_client,
+                            topic=play_scenario.get("topic"),
+                            payload=play_scenario.get("config"),
+                            retain=True,
+                        )
+                        mqtt_client.client.subscribe(play_scenario.get("config").get("command_topic"))
+
 
 def ha_devices_config(
     api: MyFoxApi,
@@ -84,7 +103,6 @@ def ha_devices_config(
         state_devices = api.get_devices_state(site_id=site_id)
         other_devices = api.get_devices_other(site_id=site_id)
         camera_devices = api.get_devices_camera(site_id=site_id)
-        scenarios = api.get_scenarios(site_id=site_id)
         shutter_devices = api.get_devices_shutter(site_id=site_id)
 
         for device in my_devices:
