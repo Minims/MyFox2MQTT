@@ -28,6 +28,13 @@ DEVICE_CAPABILITIES = {
         "type": "cover",
         "config": {"pl_open": "open", "pl_close": "close", "pl_stop": "my", "optimistic": "true"},
     },
+    "socket": {
+        "type": "switch",
+        "config": {
+            "pl_on": "on_socket",
+            "pl_off": "off_socket",
+        },
+    },
     "image_detection_enabled": {
         "type": "switch",
         "config": {
