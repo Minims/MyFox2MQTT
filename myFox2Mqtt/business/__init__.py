@@ -348,7 +348,7 @@ def update_sites_status(
                             mqtt_client=mqtt_client,
                             topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
                             payload=payload,
-                            retain=False,
+                            retain=True,
                         )
 
         except Exception as exp:
@@ -363,7 +363,7 @@ def update_sites_status(
                 mqtt_client=mqtt_client,
                 topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/state",
                 payload={"security_level": ALARM_STATUS.get(status.get("payload").get("statusLabel"), "disarmed")},
-                retain=False,
+                retain=True,
             )
         except Exception as exp:
             LOGGER.warning(f"Error while refreshing site: {exp}")
@@ -422,7 +422,7 @@ def update_devices_status(
                     mqtt_client=mqtt_client,
                     topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/state",
                     payload=payload,
-                    retain=False,
+                    retain=True,
                 )
 
         except Exception as exp:
@@ -461,7 +461,7 @@ def update_camera_snapshot(
                             mqtt_client=mqtt_client,
                             topic=topic,
                             payload=byte_arr,
-                            retain=False,
+                            retain=True,
                             is_json=False,
                         )
 
