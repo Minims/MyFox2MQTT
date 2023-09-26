@@ -28,6 +28,13 @@ DEVICE_CAPABILITIES = {
         "type": "cover",
         "config": {"pl_open": "open", "pl_close": "close", "pl_stop": "my", "optimistic": "true"},
     },
+    "socket": {
+        "type": "switch",
+        "config": {
+            "pl_on": "on_socket",
+            "pl_off": "off_socket",
+        },
+    },
     "image_detection_enabled": {
         "type": "switch",
         "config": {
@@ -720,6 +727,35 @@ def ha_discovery_alarm_actions(site: Site, mqtt_config: dict):
         "device": site_info,
         "pl_on": "panic",
         "pl_off": "stop",
+    }
+
+    return site_config
+
+
+def ha_discovery_scenario_actions(site: Site, scenario: dict, mqtt_config: dict):
+    """Auto Discover Scenarios Actions"""
+    site_config = {}
+
+    site_info = {
+        "identifiers": [site.siteId],
+        "manufacturer": "MyFox",
+        "model": "MyFox HC2",
+        "name": "MyFox HC2",
+        "sw_version": "MyFox2MQTT",
+    }
+
+    command_topic = (
+        f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site.siteId}/{scenario.get('scenarioId')}/command"
+    )
+    site_config[
+        "topic"
+    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/button/{site.siteId}/{scenario.get('scenarioId')}/config"
+    site_config["config"] = {
+        "name": scenario.get("label"),
+        "unique_id": f"{site.siteId}_{scenario.get('label')}",
+        "command_topic": command_topic,
+        "device": site_info,
+        "payload_press": "play_scenario",
     }
 
     return site_config

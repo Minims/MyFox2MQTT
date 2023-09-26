@@ -13,6 +13,7 @@ from homeassistant.ha_discovery import (
     ha_discovery_alarm_actions,
     ha_discovery_cameras,
     ha_discovery_devices,
+    ha_discovery_scenario_actions,
     DEVICE_CAPABILITIES,
     ALARM_STATUS,
 )
@@ -68,6 +69,24 @@ def ha_sites_config(
                         retain=True,
                     )
 
+                # Scenarios
+                scenarios = api.get_scenarios(site_id=site_id)
+                for scenario in scenarios:
+                    if scenario.get("typeLabel") == "onDemand":
+                        LOGGER.info(f"Found Scenario onDemand {scenario.get('label')}: {scenario.get('scenarioId')}")
+                        play_scenario = ha_discovery_scenario_actions(
+                            site=my_site,
+                            scenario=scenario,
+                            mqtt_config=mqtt_config,
+                        )
+                        mqtt_publish(
+                            mqtt_client=mqtt_client,
+                            topic=play_scenario.get("topic"),
+                            payload=play_scenario.get("config"),
+                            retain=True,
+                        )
+                        mqtt_client.client.subscribe(play_scenario.get("config").get("command_topic"))
+
 
 def ha_devices_config(
     api: MyFoxApi,
@@ -84,8 +103,8 @@ def ha_devices_config(
         state_devices = api.get_devices_state(site_id=site_id)
         other_devices = api.get_devices_other(site_id=site_id)
         camera_devices = api.get_devices_camera(site_id=site_id)
-        scenarios = api.get_scenarios(site_id=site_id)
         shutter_devices = api.get_devices_shutter(site_id=site_id)
+        socket_devices = api.get_devices_socket(site_id=site_id)
 
         for device in my_devices:
             LOGGER.info(f"Configuring Device: {device.label}")
@@ -245,6 +264,24 @@ def ha_devices_config(
                     )
                     mqtt_client.client.subscribe(shutter.get("config").get("command_topic"))
 
+            # Sockets
+            for socket_device in socket_devices:
+                if socket_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Socket for {device.device_id}: {socket_device.get('label')}")
+                    socket = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="socket",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=socket.get("topic"),
+                        payload=socket.get("config"),
+                        retain=True,
+                    )
+                    mqtt_client.client.subscribe(socket.get("config").get("command_topic"))
+
             # Works with Websockets
             if "Télécommande 4 boutons" in device.device_definition.get("device_definition_label"):
                 LOGGER.info(f"Found {device.device_definition.get('device_definition_label')}")
@@ -311,7 +348,7 @@ def update_sites_status(
                             mqtt_client=mqtt_client,
                             topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
                             payload=payload,
-                            retain=False,
+                            retain=True,
                         )
 
         except Exception as exp:
@@ -326,7 +363,7 @@ def update_sites_status(
                 mqtt_client=mqtt_client,
                 topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/state",
                 payload={"security_level": ALARM_STATUS.get(status.get("payload").get("statusLabel"), "disarmed")},
-                retain=False,
+                retain=True,
             )
         except Exception as exp:
             LOGGER.warning(f"Error while refreshing site: {exp}")
@@ -385,7 +422,7 @@ def update_devices_status(
                     mqtt_client=mqtt_client,
                     topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/state",
                     payload=payload,
-                    retain=False,
+                    retain=True,
                 )
 
         except Exception as exp:
@@ -424,7 +461,7 @@ def update_camera_snapshot(
                             mqtt_client=mqtt_client,
                             topic=topic,
                             payload=byte_arr,
-                            retain=False,
+                            retain=True,
                             is_json=False,
                         )
 

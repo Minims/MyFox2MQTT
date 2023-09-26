@@ -10,10 +10,10 @@ from myfox.api import MyFoxApi, ACTION_LIST
 LOGGER = logging.getLogger(__name__)
 
 
-def mqtt_publish(mqtt_client, topic, payload, qos=0, retain=False, is_json=True):
+def mqtt_publish(mqtt_client, topic, payload, qos=0, retain=True, is_json=True):
     """MQTT publish"""
     if is_json:
-        payload = json.dumps(payload)
+        payload = json.dumps(payload, ensure_ascii=False).encode("utf8")
     mqtt_client.client.publish(topic, payload, qos=qos, retain=retain)
 
 
@@ -32,7 +32,7 @@ def update_device(api, mqtt_client, mqtt_config, site_id, device_id):
             mqtt_client=mqtt_client,
             topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/state",
             payload=payload,
-            retain=False,
+            retain=True,
         )
     except Exception as exp:
         LOGGER.warning(f"Error while refreshing {device.label}: {exp}")
@@ -49,7 +49,7 @@ def update_site(api, mqtt_client, mqtt_config, site_id):
             mqtt_client=mqtt_client,
             topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/state",
             payload={"security_level": ALARM_STATUS.get(status.get("payload").get("statusLabel"), "disarmed")},
-            retain=False,
+            retain=True,
         )
     except Exception as exp:
         LOGGER.warning(f"Error while refreshing site {site_id}: {exp}")
@@ -92,6 +92,22 @@ def consume_mqtt_message(msg, mqtt_config: dict, api: MyFoxApi, mqtt_client: cli
             device_id = msg.topic.split("/")[2]
             LOGGER.info(f"{text_payload} Shutter on {site_id} / {device_id}")
             api.shutter_action_device(site_id=site_id, device_id=device_id, action=text_payload)
+
+        # Manage Socket
+        elif text_payload in ["on_socket", "off_socket"]:
+            site_id = msg.topic.split("/")[1]
+            device_id = msg.topic.split("/")[2]
+            action = text_payload.split("_")[0]
+            LOGGER.info(f"{action} Socket on {site_id} / {device_id}")
+            api.socket_action_device(site_id=site_id, device_id=device_id, action=action)
+
+        # Manage Scenarios
+        elif text_payload in ["play_scenario", "enable_scenario", "disbale_scenario"]:
+            site_id = msg.topic.split("/")[1]
+            scenario_id = msg.topic.split("/")[2]
+            action = text_payload.split("_")[0]
+            LOGGER.info(f"{text_payload} Scenario on {site_id} / {scenario_id}")
+            api.scenario_action(site_id=site_id, scenario_id=scenario_id, action=action)
 
         # Manage Siren
         elif text_payload == "panic":
@@ -150,7 +166,7 @@ def consume_mqtt_message(msg, mqtt_config: dict, api: MyFoxApi, mqtt_client: cli
                         mqtt_client,
                         topic,
                         byte_array,
-                        retain=False,
+                        retain=True,
                         is_json=False,
                     )
 
