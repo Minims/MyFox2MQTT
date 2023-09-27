@@ -313,13 +313,8 @@ def ha_devices_config(
                 mqtt_publish(
                     mqtt_client=mqtt_client,
                     topic=pir_config.get("topic"),
-                    payload=pir_config.get("config"),
+                    payload={},
                     retain=True,
-                )
-                mqtt_publish(
-                    mqtt_client=mqtt_client,
-                    topic=pir_config.get("config").get("state_topic"),
-                    payload={"motion_sensor": "False"},
                 )
 
 
