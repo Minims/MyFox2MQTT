@@ -694,8 +694,8 @@ def ha_discovery_history(site: Site, mqtt_config: dict):
 
     site_config["topic"] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/text/{site.siteId}/history/config"
     site_config["config"] = {
-        "name": site.label,
-        "unique_id": f"{site.siteId}_{site.label}",
+        "name": f"{site.label}_history",
+        "unique_id": f"{site.siteId}_{site.label}_history",
         "state_topic": f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site.siteId}/history",
         "device": site_info,
         "mode": "text",
@@ -722,7 +722,7 @@ def ha_discovery_alarm_actions(site: Site, mqtt_config: dict):
     site_config["topic"] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/switch/{site.siteId}/siren/config"
     site_config["config"] = {
         "name": "Siren",
-        "unique_id": f"{site.siteId}_{site.label}",
+        "unique_id": f"{site.siteId}_{site.label}_siren",
         "command_topic": command_topic,
         "device": site_info,
         "pl_on": "panic",
