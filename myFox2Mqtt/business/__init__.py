@@ -229,6 +229,23 @@ def ha_devices_config(
                         retain=True,
                     )
 
+            # Light
+            for light_device in light_devices:
+                if light_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Light for {device.device_id}: {light_device.get('level')}")
+                    light = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="level",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=light.get("topic"),
+                        payload=light.get("config"),
+                        retain=True,
+                    )
+
             # Smoke
             for other_device in other_devices:
                 if other_device.get("deviceId") == device.device_id:

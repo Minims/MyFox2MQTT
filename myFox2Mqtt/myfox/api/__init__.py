@@ -524,7 +524,7 @@ class MyFoxApi:
         """
         response = self.get(f"/v2/site/{site_id}/device/{device_id}/data/light/")
         response.raise_for_status()
-        LOGGER.info(f"Device: {response.json()}")
+        LOGGER.info(f"Light: {response.json()}")
         return response.json()
 
     def get_devices_other(

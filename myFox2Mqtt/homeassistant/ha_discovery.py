@@ -112,6 +112,13 @@ DEVICE_CAPABILITIES = {
             "unit_of_measurement": "°C",
         },
     },
+    "level": {
+        "type": "sensor",
+        "config": {
+            "device_class": "illuminance",
+            "unit_of_measurement": "lx",
+        },
+    },
     "battery_level": {
         "type": "sensor",
         "config": {
