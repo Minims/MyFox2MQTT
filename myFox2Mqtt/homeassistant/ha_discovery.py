@@ -26,7 +26,7 @@ DEVICE_CAPABILITIES = {
     },
     "shutter": {
         "type": "cover",
-        "config": {"pl_open": "open", "pl_close": "close", "pl_stop": "my", "optimistic": "true"},
+        "config": {"pl_open": "open", "pl_cls": "close", "pl_stop": "my", "optimistic": "true"},
     },
     "socket": {
         "type": "switch",
