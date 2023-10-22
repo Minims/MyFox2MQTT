@@ -232,12 +232,12 @@ def ha_devices_config(
             # Light
             for light_device in light_devices:
                 if light_device.get("deviceId") == device.device_id:
-                    LOGGER.info(f"Found Light for {device.device_id}: {light_device.get('level')}")
+                    LOGGER.info(f"Found Light for {device.device_id}: {light_device.get('light')}")
                     light = ha_discovery_devices(
                         site_id=site_id,
                         device=device,
                         mqtt_config=mqtt_config,
-                        sensor_name="level",
+                        sensor_name="light",
                     )
                     mqtt_publish(
                         mqtt_client=mqtt_client,

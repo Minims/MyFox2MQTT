@@ -112,7 +112,7 @@ DEVICE_CAPABILITIES = {
             "unit_of_measurement": "°C",
         },
     },
-    "level": {
+    "light": {
         "type": "sensor",
         "config": {
             "device_class": "illuminance",
