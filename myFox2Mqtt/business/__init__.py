@@ -230,6 +230,26 @@ def ha_devices_config(
                         retain=True,
                     )
 
+
+            # State
+            for state_device in state_devices:
+                if state_device.get("deviceId") == device.device_id:
+                    LOGGER.info(
+                        f"Found State for {device.device_id}: {state_device.get('stateLabel')}"
+                    )
+                    state = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="stateLabel",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=state.get("topic"),
+                        payload=state.get("config"),
+                        retain=True,
+                    )
+
             # Light
             for light_device in light_devices:
                 if light_device.get("deviceId") == device.device_id:
@@ -413,11 +433,9 @@ def update_devices_status(
         try:
             my_devices = api.get_devices(site_id=site_id)
             temperature_devices = api.get_devices_temperature(site_id=site_id)
+            other_devices = api.get_devices_other(site_id=site_id)
             light_devices = api.get_devices_light(site_id=site_id)
             state_devices = api.get_devices_state(site_id=site_id)
-            other_devices = api.get_devices_other(site_id=site_id)
-            camera_devices = api.get_devices_camera(site_id=site_id)
-            scenarios = api.get_scenarios(site_id=site_id)
 
             for device in my_devices:
                 settings = device.settings
@@ -440,6 +458,16 @@ def update_devices_status(
                 for temperature_device in temperature_devices:
                     if temperature_device.get("deviceId") == device.device_id:
                         keys_values["lastTemperature"] = temperature_device.get("lastTemperature")
+
+                # Light
+                for light_device in light_devices:
+                    if light_device.get("deviceId") == device.device_id:
+                        keys_values["lastTemperature"] = light_device.get("light")
+
+                # State
+                for state_device in state_devices:
+                    if state_device.get("deviceId") == device.device_id:
+                        keys_values["lastTemperature"] = state_device.get("stateLabel")
 
                 # Smoke
                 for other_device in other_devices:

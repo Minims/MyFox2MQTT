@@ -138,6 +138,13 @@ DEVICE_CAPABILITIES = {
             "pl_off": "False",
         },
     },
+    "stateLabel": {
+        "type": "binary_sensor",
+        "config": {
+            "pl_on": "opened",
+            "pl_off": "closed",
+        },
+    },
     "state": {
         "type": "binary_sensor",
         "config": {
@@ -433,14 +440,6 @@ DEVICE_CAPABILITIES = {
     "halt": {
         "type": "button",
         "config": {"payload_press": "halt"},
-    },
-    "gate": {
-        "type": "switch",
-        "config": {
-            "pl_on": "gate_open",
-            "pl_off": "gate_close",
-            "optimistic": "True",
-        },
     },
     "garage": {
         "type": "switch",
