@@ -230,13 +230,10 @@ def ha_devices_config(
                         retain=True,
                     )
 
-
             # State
             for state_device in state_devices:
                 if state_device.get("deviceId") == device.device_id:
-                    LOGGER.info(
-                        f"Found State for {device.device_id}: {state_device.get('stateLabel')}"
-                    )
+                    LOGGER.info(f"Found State for {device.device_id}: {state_device.get('stateLabel')}")
                     state = ha_discovery_devices(
                         site_id=site_id,
                         device=device,
@@ -387,20 +384,22 @@ def update_sites_status(
             payload = {}
             events = api.get_site_history(site_id=site_id)
             for event in events:
+                # Only Push last Event
                 if event:
-                    created_at = event.get("createdAt")
-                    date_format = "%Y-%m-%dT%H:%M:%SZ"
-                    created_at_date = datetime.strptime(created_at, date_format)
-                    now = datetime.now()
-                    if now - created_at_date < timedelta(seconds=70):
-                        payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
-                        # Push status to MQTT
-                        mqtt_publish(
-                            mqtt_client=mqtt_client,
-                            topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
-                            payload=payload,
-                            retain=True,
-                        )
+                    # created_at = event.get("createdAt")
+                    # date_format = "%Y-%m-%dT%H:%M:%SZ"
+                    # created_at_date = datetime.strptime(created_at, date_format)
+                    # now = datetime.now()
+                    # if now - created_at_date < timedelta(seconds=70):
+                    payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
+                    # Push status to MQTT
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
+                        payload=payload,
+                        retain=True,
+                    )
+                    break
 
         except Exception as exp:
             LOGGER.warning(f"Error while getting site history: {exp}")
