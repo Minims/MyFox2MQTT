@@ -630,6 +630,50 @@ class MyFoxApi:
         response.raise_for_status()
         return response.json()
 
+    def get_devices_gate(self, site_id: str):
+        """Get Devices Gate from a Site ID
+
+        Args:
+            site_id (Optional[str], optional): Site ID. Defaults to None.
+
+        Returns:
+            List[Device]: List of Device object
+        """
+        response = self.get(f"/v2/site/{site_id}/device/gate/items")
+        try:
+            content = response.json()
+        except JSONDecodeError:
+            response.raise_for_status()
+        LOGGER.info(f"Devices Gate: {response.json()}")
+        return content.get("payload").get("items")
+
+    def gate_action_device(
+        self,
+        site_id: str,
+        device_id: str,
+        action: str,
+    ) -> Dict:
+        """Make an action on a Gate
+
+        Args:
+            site_id (str): Site ID
+            device_id (str): Device ID
+            action (str): Action
+
+        Returns:
+            str: Task ID
+        """
+        if action not in ["one", "two"]:
+            raise ValueError(f"Unknown action {action}")
+
+        response = self.post(
+            f"/v2/site/{site_id}/device/{device_id}/gate/perform/{action}",
+            json={},
+        )
+        LOGGER.info(f"Gate Action: {response.status_code} => {response.text}")
+        response.raise_for_status()
+        return response.json()
+
     def get_devices_socket(self, site_id: str):
         """Get Devices Socket from a Site ID
 

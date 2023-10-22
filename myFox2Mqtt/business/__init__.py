@@ -104,6 +104,7 @@ def ha_devices_config(
         other_devices = api.get_devices_other(site_id=site_id)
         camera_devices = api.get_devices_camera(site_id=site_id)
         shutter_devices = api.get_devices_shutter(site_id=site_id)
+        gate_devices = api.get_devices_gate(site_id=site_id)
         socket_devices = api.get_devices_socket(site_id=site_id)
 
         for device in my_devices:
@@ -280,6 +281,24 @@ def ha_devices_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(shutter.get("config").get("command_topic"))
+
+            # Gate
+            for gate_device in gate_devices:
+                if gate_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Gate for {device.device_id}: {gate_device.get('label')}")
+                    gate = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="gate",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=gate.get("topic"),
+                        payload=gate.get("config"),
+                        retain=True,
+                    )
+                    mqtt_client.client.subscribe(gate.get("config").get("command_topic"))
 
             # Sockets
             for socket_device in socket_devices:

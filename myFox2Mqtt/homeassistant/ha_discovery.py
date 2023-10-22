@@ -28,6 +28,10 @@ DEVICE_CAPABILITIES = {
         "type": "cover",
         "config": {"pl_open": "open", "pl_cls": "close", "pl_stop": "my", "optimistic": "true"},
     },
+    "gate": {
+        "type": "cover",
+        "config": {"pl_open": "one", "pl_cls": "two", "optimistic": "true", "device_class": "gate"},
+    },
     "socket": {
         "type": "switch",
         "config": {
