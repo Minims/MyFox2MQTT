@@ -461,12 +461,12 @@ def update_devices_status(
                 # Light
                 for light_device in light_devices:
                     if light_device.get("deviceId") == device.device_id:
-                        keys_values["lastTemperature"] = light_device.get("light")
+                        keys_values["light"] = int(light_device.get("light"))
 
                 # State
                 for state_device in state_devices:
                     if state_device.get("deviceId") == device.device_id:
-                        keys_values["lastTemperature"] = state_device.get("stateLabel")
+                        keys_values["stateLabel"] = state_device.get("stateLabel")
 
                 # Smoke
                 for other_device in other_devices:
