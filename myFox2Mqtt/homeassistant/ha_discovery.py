@@ -26,7 +26,11 @@ DEVICE_CAPABILITIES = {
     },
     "shutter": {
         "type": "cover",
-        "config": {"pl_open": "open", "pl_close": "close", "pl_stop": "my", "optimistic": "true"},
+        "config": {"pl_open": "open", "pl_cls": "close", "pl_stop": "my", "optimistic": "true"},
+    },
+    "gate": {
+        "type": "cover",
+        "config": {"pl_open": "one", "pl_cls": "two", "optimistic": "true", "device_class": "gate"},
     },
     "socket": {
         "type": "switch",
@@ -112,6 +116,13 @@ DEVICE_CAPABILITIES = {
             "unit_of_measurement": "°C",
         },
     },
+    "light": {
+        "type": "sensor",
+        "config": {
+            "device_class": "illuminance",
+            "unit_of_measurement": "lx",
+        },
+    },
     "battery_level": {
         "type": "sensor",
         "config": {
@@ -125,6 +136,13 @@ DEVICE_CAPABILITIES = {
             "device_class": "battery",
             "pl_on": "True",
             "pl_off": "False",
+        },
+    },
+    "stateLabel": {
+        "type": "binary_sensor",
+        "config": {
+            "pl_on": "opened",
+            "pl_off": "closed",
         },
     },
     "state": {
@@ -422,14 +440,6 @@ DEVICE_CAPABILITIES = {
     "halt": {
         "type": "button",
         "config": {"payload_press": "halt"},
-    },
-    "gate": {
-        "type": "switch",
-        "config": {
-            "pl_on": "gate_open",
-            "pl_off": "gate_close",
-            "optimistic": "True",
-        },
     },
     "garage": {
         "type": "switch",

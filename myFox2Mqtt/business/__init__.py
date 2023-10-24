@@ -104,6 +104,7 @@ def ha_devices_config(
         other_devices = api.get_devices_other(site_id=site_id)
         camera_devices = api.get_devices_camera(site_id=site_id)
         shutter_devices = api.get_devices_shutter(site_id=site_id)
+        gate_devices = api.get_devices_gate(site_id=site_id)
         socket_devices = api.get_devices_socket(site_id=site_id)
 
         for device in my_devices:
@@ -229,6 +230,40 @@ def ha_devices_config(
                         retain=True,
                     )
 
+            # State
+            for state_device in state_devices:
+                if state_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found State for {device.device_id}: {state_device.get('stateLabel')}")
+                    state = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="stateLabel",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=state.get("topic"),
+                        payload=state.get("config"),
+                        retain=True,
+                    )
+
+            # Light
+            for light_device in light_devices:
+                if light_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Light for {device.device_id}: {light_device.get('light')}")
+                    light = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="light",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=light.get("topic"),
+                        payload=light.get("config"),
+                        retain=True,
+                    )
+
             # Smoke
             for other_device in other_devices:
                 if other_device.get("deviceId") == device.device_id:
@@ -263,6 +298,24 @@ def ha_devices_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(shutter.get("config").get("command_topic"))
+
+            # Gate
+            for gate_device in gate_devices:
+                if gate_device.get("deviceId") == device.device_id:
+                    LOGGER.info(f"Found Gate for {device.device_id}: {gate_device.get('label')}")
+                    gate = ha_discovery_devices(
+                        site_id=site_id,
+                        device=device,
+                        mqtt_config=mqtt_config,
+                        sensor_name="gate",
+                    )
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=gate.get("topic"),
+                        payload=gate.get("config"),
+                        retain=True,
+                    )
+                    mqtt_client.client.subscribe(gate.get("config").get("command_topic"))
 
             # Sockets
             for socket_device in socket_devices:
@@ -331,20 +384,22 @@ def update_sites_status(
             payload = {}
             events = api.get_site_history(site_id=site_id)
             for event in events:
+                # Only Push last Event
                 if event:
-                    created_at = event.get("createdAt")
-                    date_format = "%Y-%m-%dT%H:%M:%SZ"
-                    created_at_date = datetime.strptime(created_at, date_format)
-                    now = datetime.now()
-                    if now - created_at_date < timedelta(seconds=70):
-                        payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
-                        # Push status to MQTT
-                        mqtt_publish(
-                            mqtt_client=mqtt_client,
-                            topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
-                            payload=payload,
-                            retain=True,
-                        )
+                    # created_at = event.get("createdAt")
+                    # date_format = "%Y-%m-%dT%H:%M:%SZ"
+                    # created_at_date = datetime.strptime(created_at, date_format)
+                    # now = datetime.now()
+                    # if now - created_at_date < timedelta(seconds=70):
+                    payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
+                    # Push status to MQTT
+                    mqtt_publish(
+                        mqtt_client=mqtt_client,
+                        topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
+                        payload=payload,
+                        retain=True,
+                    )
+                    break
 
         except Exception as exp:
             LOGGER.warning(f"Error while getting site history: {exp}")
@@ -377,11 +432,9 @@ def update_devices_status(
         try:
             my_devices = api.get_devices(site_id=site_id)
             temperature_devices = api.get_devices_temperature(site_id=site_id)
+            other_devices = api.get_devices_other(site_id=site_id)
             light_devices = api.get_devices_light(site_id=site_id)
             state_devices = api.get_devices_state(site_id=site_id)
-            other_devices = api.get_devices_other(site_id=site_id)
-            camera_devices = api.get_devices_camera(site_id=site_id)
-            scenarios = api.get_scenarios(site_id=site_id)
 
             for device in my_devices:
                 settings = device.settings
@@ -404,6 +457,16 @@ def update_devices_status(
                 for temperature_device in temperature_devices:
                     if temperature_device.get("deviceId") == device.device_id:
                         keys_values["lastTemperature"] = temperature_device.get("lastTemperature")
+
+                # Light
+                for light_device in light_devices:
+                    if light_device.get("deviceId") == device.device_id:
+                        keys_values["light"] = int(light_device.get("light"))
+
+                # State
+                for state_device in state_devices:
+                    if state_device.get("deviceId") == device.device_id:
+                        keys_values["stateLabel"] = state_device.get("stateLabel")
 
                 # Smoke
                 for other_device in other_devices:
