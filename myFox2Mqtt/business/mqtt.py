@@ -93,6 +93,13 @@ def consume_mqtt_message(msg, mqtt_config: dict, api: MyFoxApi, mqtt_client: cli
             LOGGER.info(f"{text_payload} Shutter on {site_id} / {device_id}")
             api.shutter_action_device(site_id=site_id, device_id=device_id, action=text_payload)
 
+        # Manage Gate
+        elif text_payload in ["one", "two"]:
+            site_id = msg.topic.split("/")[1]
+            device_id = msg.topic.split("/")[2]
+            LOGGER.info(f"{text_payload} Gate on {site_id} / {device_id}")
+            api.gate_action_device(site_id=site_id, device_id=device_id, action=text_payload)
+
         # Manage Socket
         elif text_payload in ["on_socket", "off_socket"]:
             site_id = msg.topic.split("/")[1]

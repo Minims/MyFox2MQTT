@@ -21,6 +21,7 @@ from business.mqtt import mqtt_publish
 from mqtt import MQTTClient
 
 LOGGER = logging.getLogger(__name__)
+HISTORY = {}
 
 
 def ha_sites_config(
@@ -384,22 +385,28 @@ def update_sites_status(
             payload = {}
             events = api.get_site_history(site_id=site_id)
             for event in events:
-                # Only Push last Event
                 if event:
-                    # created_at = event.get("createdAt")
-                    # date_format = "%Y-%m-%dT%H:%M:%SZ"
-                    # created_at_date = datetime.strptime(created_at, date_format)
-                    # now = datetime.now()
-                    # if now - created_at_date < timedelta(seconds=70):
-                    payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
-                    # Push status to MQTT
-                    mqtt_publish(
-                        mqtt_client=mqtt_client,
-                        topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
-                        payload=payload,
-                        retain=True,
-                    )
-                    break
+                    created_at = event.get("createdAt")
+                    date_format = "%Y-%m-%dT%H:%M:%SZ"
+                    created_at_date = datetime.strptime(created_at, date_format)
+                    now = datetime.now()
+                    if now - created_at_date < timedelta(seconds=90):
+                        if created_at in HISTORY:
+                            LOGGER.info(f"History still published: {HISTORY[created_at]}")
+                            continue
+                        HISTORY[created_at] = {event.get("type"): event.get("label")}
+                        payload = f"{event.get('type')} {event.get('createdAt')} {event.get('label')}"
+                        # Push status to MQTT
+                        mqtt_publish(
+                            mqtt_client=mqtt_client,
+                            topic=f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/history",
+                            payload=payload,
+                            retain=True,
+                        )
+                    else:
+                        LOGGER.info(
+                            f"Event is too old {event.get('type')} {event.get('createdAt')} {event.get('label')}"
+                        )
 
         except Exception as exp:
             LOGGER.warning(f"Error while getting site history: {exp}")
