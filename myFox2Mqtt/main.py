@@ -12,7 +12,7 @@ from mqtt import init_mqtt
 from myfox.sso import init_sso
 from myfox.api import MyFoxApi
 
-VERSION = "2023.10.2"
+VERSION = "2023.11.0"
 
 
 def myfox_loop(config, mqtt_client, api):
