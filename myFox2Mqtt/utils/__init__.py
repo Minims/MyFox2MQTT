@@ -12,21 +12,25 @@ from yaml.parser import ParserError
 LOGGER = logging.getLogger(__name__)
 
 
-def setup_logger(debug: bool = False, filename: str = "/var/log/myFox.log") -> None:
+def setup_logger(filename: str, debug: bool = False) -> None:
     """Setup Logging
     Args:
         debug (bool, optional): True if debug enabled. Defaults to False.
         filename (str, optional): log filename. Defaults to "/var/log/myFox.log".
     """
     log_level = logging.DEBUG if debug else logging.INFO
+    handlers = [
+        logging.StreamHandler(),
+    ]
+    if filename:
+        handlers.append(logging.FileHandler(filename=filename))
+
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s:%(lineno)d] %(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler(filename=filename),
-        ],
+        handlers=handlers,
     )
+
 
 
 def read_config_file(config_file: str) -> Dict[str, Any]:

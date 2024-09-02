@@ -12,7 +12,7 @@ from mqtt import init_mqtt
 from myfox.sso import init_sso
 from myfox.api import MyFoxApi
 
-VERSION = "2023.11.0"
+VERSION = "2024.9.0"
 
 
 def myfox_loop(config, mqtt_client, api):
@@ -31,12 +31,14 @@ if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--verbose", "-v", action="store_true", help="verbose mode")
     PARSER.add_argument("--configuration", "-c", type=str, help="config file path")
+    PARSER.add_argument("--logfile", "-l", type=str, help="logfile", default="myFox2Mqtt.log")
     ARGS = PARSER.parse_args()
     DEBUG = ARGS.verbose
     CONFIG_FILE = ARGS.configuration
+    LOG_FILE = ARGS.logfile
 
     # Setup Logger
-    setup_logger(debug=DEBUG, filename="myFox2Mqtt.log")
+    setup_logger(debug=DEBUG, filename=LOG_FILE)
     LOGGER = logging.getLogger(__name__)
     LOGGER.info(f"Starting MyFox2Mqtt {VERSION}")
 
