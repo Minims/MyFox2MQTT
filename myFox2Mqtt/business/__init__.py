@@ -1,6 +1,8 @@
 """Business Functions"""
+
 import logging
 from datetime import datetime, timedelta
+import pytz
 from time import sleep
 
 from exceptions import MyFoxInitError
@@ -372,6 +374,15 @@ def ha_devices_config(
                 )
 
 
+def convert_utc_to_paris(date: datetime) -> datetime:
+
+    utc_zone = pytz.utc
+    date = utc_zone.localize(date)
+    paris_zone = pytz.timezone("Europe/Paris")
+    paris_date = date.astimezone(paris_zone)
+    return paris_date
+
+
 def update_sites_status(
     api: MyFoxApi,
     mqtt_client: MQTTClient,
@@ -389,7 +400,9 @@ def update_sites_status(
                     created_at = event.get("createdAt")
                     date_format = "%Y-%m-%dT%H:%M:%SZ"
                     created_at_date = datetime.strptime(created_at, date_format)
-                    now = datetime.now()
+                    created_at_date = convert_utc_to_paris(date=created_at_date)
+                    paris_tz = pytz.timezone("Europe/Paris")
+                    now = datetime.now(paris_tz)
                     if now - created_at_date < timedelta(seconds=90):
                         if created_at in HISTORY:
                             LOGGER.info(f"History still published: {HISTORY[created_at]}")
