@@ -29,6 +29,6 @@ mqtt:
   ha_discover_prefix: "homeassistant"
 
 # MyFox2MQTT
-delay_site: 10  # seconds
+delay_site: 60  # seconds
 delay_device: 60  # seconds
 manual_snapshot: false

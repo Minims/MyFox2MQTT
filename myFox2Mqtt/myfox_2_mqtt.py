@@ -1,4 +1,5 @@
 """MyFox 2 Mqtt"""
+
 import logging
 from time import sleep
 
@@ -41,10 +42,10 @@ class MyFox2Mqtt:
         self.my_sites_id = []
 
         self.delay_site = config.get("delay_site", 60)
-        self.delay_site = max(self.delay_site, 10)
+        self.delay_site = max(self.delay_site, 60)
 
         self.delay_device = config.get("delay_device", 60)
-        self.delay_device = max(self.delay_device, 10)
+        self.delay_device = max(self.delay_device, 60)
 
         self.manual_snapshot = config.get("manual_snapshot", False)
 
