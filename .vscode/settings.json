@@ -8,5 +8,8 @@
     "python.formatting.provider": "none",
     "black-formatter.args": [
         "-l 120"
-    ]
+    ],
+    "files.associations": {
+        "*.yaml": "home-assistant"
+    }
 }

@@ -1,4 +1,5 @@
 """Device Managment"""
+
 from typing import Union
 
 from myfox.api.model import Device, Site

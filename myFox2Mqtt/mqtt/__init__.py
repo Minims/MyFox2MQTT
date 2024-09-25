@@ -1,11 +1,12 @@
 """MQTT"""
+
 import json
 import logging
 import ssl
 from time import sleep
 
 import paho.mqtt.client as mqtt
-from business.mqtt import consume_mqtt_message
+from business.mqtt import consume_mqtt_message, SUBSCRIBE_TOPICS
 from exceptions import MyFoxInitError
 from homeassistant.ha_discovery import ALARM_STATUS
 from myfox.api import MyFoxApi
@@ -39,7 +40,13 @@ class MQTTClient:
 
     def on_connect(self, mqttc, obj, flags, rc):  # pylint: disable=unused-argument,invalid-name
         """MQTT on_connect"""
-        LOGGER.debug(f"Connected: {rc}")
+        if rc == 0:
+            LOGGER.info(f"Connected: {rc}")
+            for topic in SUBSCRIBE_TOPICS:
+                LOGGER.info(f"Subscribing to: {topic}")
+                self.client.subscribe(topic)
+        else:
+            LOGGER.info(f"Not Connected: {rc}")
 
     def on_message(self, mqttc, obj, msg):  # pylint: disable=unused-argument
         """MQTT on_message"""
