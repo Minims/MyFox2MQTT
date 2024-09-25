@@ -19,7 +19,7 @@ from homeassistant.ha_discovery import (
     DEVICE_CAPABILITIES,
     ALARM_STATUS,
 )
-from business.mqtt import mqtt_publish
+from business.mqtt import mqtt_publish, SUBSCRIBE_TOPICS
 from mqtt import MQTTClient
 
 LOGGER = logging.getLogger(__name__)
@@ -58,6 +58,7 @@ def ha_sites_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(site_config.get("config").get("command_topic"))
+                    SUBSCRIBE_TOPICS.append(site_config.get("config").get("command_topic"))
 
                 history = ha_discovery_history(
                     site=my_site,
@@ -89,6 +90,7 @@ def ha_sites_config(
                             retain=True,
                         )
                         mqtt_client.client.subscribe(play_scenario.get("config").get("command_topic"))
+                        SUBSCRIBE_TOPICS.append(play_scenario.get("config").get("command_topic"))
 
 
 def ha_devices_config(
@@ -152,6 +154,7 @@ def ha_devices_config(
                     )
                     if device_config.get("config").get("command_topic"):
                         mqtt_client.client.subscribe(device_config.get("config").get("command_topic"))
+                        SUBSCRIBE_TOPICS.append(device_config.get("config").get("command_topic"))
 
             if "Myfox HC2" in device.device_definition.get(
                 "device_definition_label"
@@ -184,6 +187,7 @@ def ha_devices_config(
                     retain=True,
                 )
                 mqtt_client.client.subscribe(reboot.get("config").get("command_topic"))
+                SUBSCRIBE_TOPICS.append(reboot.get("config").get("command_topic"))
 
                 halt = ha_discovery_devices(
                     site_id=site_id,
@@ -198,6 +202,8 @@ def ha_devices_config(
                     retain=True,
                 )
                 mqtt_client.client.subscribe(halt.get("config").get("command_topic"))
+                SUBSCRIBE_TOPICS.append(halt.get("config").get("command_topic"))
+
                 # Manual Snapshot
                 device_config = ha_discovery_devices(
                     site_id=site_id,
@@ -213,6 +219,7 @@ def ha_devices_config(
                 )
                 if device_config.get("config").get("command_topic"):
                     mqtt_client.client.subscribe(device_config.get("config").get("command_topic"))
+                    SUBSCRIBE_TOPICS.append(device_config.get("config").get("command_topic"))
 
             # Temperature
             for temperature_device in temperature_devices:
@@ -301,6 +308,7 @@ def ha_devices_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(shutter.get("config").get("command_topic"))
+                    SUBSCRIBE_TOPICS.append(shutter.get("config").get("command_topic"))
 
             # Gate
             for gate_device in gate_devices:
@@ -319,6 +327,7 @@ def ha_devices_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(gate.get("config").get("command_topic"))
+                    SUBSCRIBE_TOPICS.append(gate.get("config").get("command_topic"))
 
             # Sockets
             for socket_device in socket_devices:
@@ -337,6 +346,7 @@ def ha_devices_config(
                         retain=True,
                     )
                     mqtt_client.client.subscribe(socket.get("config").get("command_topic"))
+                    SUBSCRIBE_TOPICS.append(socket.get("config").get("command_topic"))
 
             # Works with Websockets
             if "Télécommande 4 boutons" in device.device_definition.get("device_definition_label"):

@@ -1,4 +1,5 @@
 """MyFox Api"""
+
 import logging
 import json
 from json import JSONDecodeError

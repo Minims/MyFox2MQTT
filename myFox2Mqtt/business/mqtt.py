@@ -1,4 +1,5 @@
 """ MQTT Business"""
+
 import json
 import logging
 from time import sleep
@@ -8,6 +9,7 @@ from paho.mqtt import client
 from myfox.api import MyFoxApi, ACTION_LIST
 
 LOGGER = logging.getLogger(__name__)
+SUBSCRIBE_TOPICS = []
 
 
 def mqtt_publish(mqtt_client, topic, payload, qos=0, retain=True, is_json=True):

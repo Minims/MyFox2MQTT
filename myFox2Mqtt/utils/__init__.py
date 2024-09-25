@@ -1,4 +1,5 @@
 """Utils package"""
+
 import codecs
 import logging
 import logging.handlers
@@ -30,7 +31,6 @@ def setup_logger(filename: str, debug: bool = False) -> None:
         format="%(asctime)s [%(levelname)s] [%(name)s:%(lineno)d] %(message)s",
         handlers=handlers,
     )
-
 
 
 def read_config_file(config_file: str) -> Dict[str, Any]:

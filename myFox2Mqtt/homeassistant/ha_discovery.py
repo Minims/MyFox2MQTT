@@ -1,4 +1,5 @@
 """HomeAssistant MQTT Auto Discover"""
+
 import logging
 from myfox.api.model import Site, Device
 
@@ -667,9 +668,9 @@ def ha_discovery_alarm(site: Site, mqtt_config: dict, homeassistant_config: dict
     }
 
     command_topic = f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site.siteId}/command"
-    site_config[
-        "topic"
-    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/alarm_control_panel/{site.siteId}/alarm/config"
+    site_config["topic"] = (
+        f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/alarm_control_panel/{site.siteId}/alarm/config"
+    )
     site_config["config"] = {
         "name": site.label,
         "unique_id": f"{site.siteId}_{site.label}",
@@ -757,9 +758,9 @@ def ha_discovery_scenario_actions(site: Site, scenario: dict, mqtt_config: dict)
     command_topic = (
         f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site.siteId}/{scenario.get('scenarioId')}/command"
     )
-    site_config[
-        "topic"
-    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/button/{site.siteId}/{scenario.get('scenarioId')}/config"
+    site_config["topic"] = (
+        f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/button/{site.siteId}/{scenario.get('scenarioId')}/config"
+    )
     site_config["config"] = {
         "name": scenario.get("label"),
         "unique_id": f"{site.siteId}_{scenario.get('label')}",
@@ -792,9 +793,9 @@ def ha_discovery_devices(
     command_topic = (
         f"{mqtt_config.get('topic_prefix', 'myFox2mqtt')}/{site_id}/{device.device_id}/{sensor_name}/command"
     )
-    device_config[
-        "topic"
-    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/{device_type}/{site_id}_{device.device_id}/{sensor_name}/config"
+    device_config["topic"] = (
+        f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/{device_type}/{site_id}_{device.device_id}/{sensor_name}/config"
+    )
     device_config["config"] = {
         "name": sensor_name,
         "unique_id": f"{device.device_id}_{sensor_name}",
@@ -848,9 +849,9 @@ def ha_discovery_cameras(
         "sw_version": "Unknown",
     }
 
-    camera_config[
-        "topic"
-    ] = f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/camera/{site_id}_{device.device_id}/snapshot/config"
+    camera_config["topic"] = (
+        f"{mqtt_config.get('ha_discover_prefix', 'homeassistant')}/camera/{site_id}_{device.device_id}/snapshot/config"
+    )
     camera_config["config"] = {
         "name": "snapshot",
         "unique_id": f"{device.device_id}_snapshot",
